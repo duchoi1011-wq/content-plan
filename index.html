@@ -51,8 +51,8 @@ header>.brand{padding-right:min(46vw,190px)}
 <body>
 <span id="rtdot" aria-hidden="true"></span>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script>window.BRAINY_VERSION = "e8a1fec662"; window.BRAINY_APP = {key: "content", name: "콘텐츠 기획", icon: "ct-icon-192.png", sub: "키워드와 트렌드로 주제를 고르고 대본 초안까지", colls: ["ct.data", "ct.set", "cmd"]};</script>
-<script src="shim.js?v=e8a1fec662"></script>
+<script>window.BRAINY_VERSION = "ce2af9824f"; window.BRAINY_APP = {key: "content", name: "콘텐츠 기획", icon: "ct-icon-192.png", sub: "키워드와 트렌드로 주제를 고르고 대본 초안까지", colls: ["ct.data", "ct.set", "cmd"]};</script>
+<script src="shim.js?v=ce2af9824f"></script>
 <script>document.addEventListener("click", function (e) { var b = e.target.closest && e.target.closest("[data-brainy=out]"); if (b && confirm("로그아웃할까요?")) window.BRAINY.signOut(); });</script>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="apple-mobile-web-app-title" content="콘텐츠 기획">
@@ -1028,7 +1028,7 @@ function cmtsOf(vid){
   if(c && (c.comments || []).length) return { list: c.comments.slice(0, CMT_TOP), at: c.at };
   var an = vid ? anaOf(vid) : null;
   if(an && (an.comments || []).length) return { list: an.comments.slice().sort(function(a, b){ return (b.likes || 0) - (a.likes || 0) }).slice(0, CMT_TOP), at: an.at };
-  return c && c.error ? { list: [], error: c.error } : null;
+  return c ? { list: [], error: c.error || "댓글 없음" } : null;
 }
 function cmtCell(r){
   var c = cmtsOf(r.vid);
