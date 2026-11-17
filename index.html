@@ -51,8 +51,8 @@ header>.brand{padding-right:min(46vw,190px)}
 <body>
 <span id="rtdot" aria-hidden="true"></span>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script>window.BRAINY_VERSION = "41ba9d84c4"; window.BRAINY_APP = {key: "content", name: "콘텐츠 기획", icon: "ct-icon-192.png", sub: "키워드와 트렌드로 주제를 고르고 대본 초안까지", colls: ["ct.data", "ct.set", "cmd"]};</script>
-<script src="shim.js?v=41ba9d84c4"></script>
+<script>window.BRAINY_VERSION = "c893424aa6"; window.BRAINY_APP = {key: "content", name: "콘텐츠 기획", icon: "ct-icon-192.png", sub: "키워드와 트렌드로 주제를 고르고 대본 초안까지", colls: ["ct.data", "ct.set", "cmd"]};</script>
+<script src="shim.js?v=c893424aa6"></script>
 <script>document.addEventListener("click", function (e) { var b = e.target.closest && e.target.closest("[data-brainy=out]"); if (b && confirm("로그아웃할까요?")) window.BRAINY.signOut(); });</script>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="apple-mobile-web-app-title" content="콘텐츠 기획">
@@ -237,7 +237,7 @@ input[type=range]{width:100%;height:30px;accent-color:var(--ink);margin:8px 0 0}
 .orig th{position:sticky;top:0;background:var(--ink);color:#fff;font-weight:600;padding:8px 10px;text-align:left;white-space:nowrap}
 .orig td{border-top:1px solid var(--line);padding:10px;vertical-align:top;max-width:220px}
 .auto-card .card-h h3{font-size:18px}#kwrec .auto-card{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}.auto-steps{list-style:none;padding:0;margin:10px 0 0;display:flex;flex-wrap:wrap;gap:6px 14px}.auto-steps li{font-size:14px}.auto-steps .s-대기{opacity:.5}.auto-steps .s-실패 b{color:var(--warn,#c0392b)}
-.prbar{margin:0 0 14px;background:var(--surface);border:1px dashed var(--line);border-radius:14px;padding:10px 14px}.prbar>summary{cursor:pointer;font-weight:600}.prbox{margin-top:8px}.prbox-h{font-weight:600;margin-bottom:6px}.prbox textarea{width:100%;box-sizing:border-box;font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);resize:vertical}.bd-idea .acts{margin-top:6px}
+.prbar{margin:0 0 14px;background:var(--surface);border:1px dashed var(--line);border-radius:14px;padding:10px 14px}.prbar>summary{cursor:pointer;font-weight:600;min-height:44px;display:flex;align-items:center;gap:6px}.prbox .btn,.bd-idea .btn{min-height:44px}.prbox{margin-top:8px}.prbox-h{font-weight:600;margin-bottom:6px}.prbox textarea{width:100%;box-sizing:border-box;font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);resize:vertical}.bd-idea .acts{margin-top:6px}
 .orig td.o-cmt{max-width:320px;min-width:240px}.orig td.o-basis{min-width:200px}.orig ol.cmts{margin:6px 0 0;padding-left:18px}.orig ol.cmts li{margin-bottom:8px;white-space:pre-wrap}
 .orig td img{width:150px;height:84px;object-fit:cover;border-radius:8px;display:block}
 .orig td.o-topic{min-width:240px;max-width:280px;background:var(--surface-2)}
@@ -1154,7 +1154,7 @@ function viewScript(){
       (x.shoot ? "<details><summary>촬영 요약</summary><div class=\"pre\" style=\"margin-top:6px\">" + md(x.shoot) + "</div></details>" : "") +
       (x.script ? "<details open><summary>대본 뼈대</summary><div class=\"pre\" id=\"sc-" + i + "\" style=\"margin-top:6px\">" + md(x.script) + "</div></details>" : "") +
       sourceHtml(x.rec) +
-      promptBoxHtml("script:" + x.rec, "이 대본 고치기 · 첨삭", "예: 도입 3초를 「이 줄, 뭘 받으려는 줄일까요?」 질문으로 바꾸고, 소주제 2를 현장 사례로 바꿔 줘", "scriptedit") +
+      "<details class=\"prbar\"" + (prDraft("script:" + x.rec) ? " open" : "") + "><summary>✍️ 이 대본 고치기 · 첨삭</summary>" + promptBoxHtml("script:" + x.rec, "무엇을 고칠까요?", "예: 도입 3초를 시청자에게 던지는 질문으로 바꾸고, 두 번째 소주제를 실제 사례로 바꿔 줘", "scriptedit") + "</details>" +
       (x.todo ? "<details><summary>아직 정해야 할 것</summary><div class=\"pre\" style=\"margin-top:6px\">" + md(x.todo) + "</div></details>" : "") +
       "<div class=\"acts\">" + (x.script ? "<button class=\"btn sm\" data-copy=\"sc-" + i + "\">대본 복사</button>" : "") + "<span class=\"lead\" style=\"margin:0\">카드 · " + esc(String(x.card || "").split("/").pop().replace(/\.md$/, "")) + "</span></div></section>";
   });
@@ -1437,7 +1437,7 @@ function buildDocHtml(doc){
     (tpl ? "<p class=\"lead\"><b>틀: " + esc(doc.role) + "</b> — " + esc(tpl) + "</p>" : "") +
     "<div class=\"acts\"><button class=\"btn primary\" data-act=\"buildscript\" data-id=\"" + esc(doc.id) + "\"" + (openCmd("script") ? " disabled" : "") + ">" + (openCmd("script") ? "맥이 대본 쓰는 중…" : sc ? "📝 이 문서로 대본 다시 만들기" : "📝 이 문서로 대본 만들기") + "</button>" +
     (sc ? "<button class=\"btn\" data-tab=\"script\">대본 보기 →</button>" : "") + "</div>" +
-    promptBoxHtml("build:" + doc.id, "이 문서 고치기 · 다른 버전 만들기", "예: 도입부를 현장에서 줄 서는 장면으로 시작하게 다시 쓰고, 썸네일 문구 후보 3개 더 줘") + "</div>";
+    "<details class=\"prbar\"" + (prDraft("build:" + doc.id) ? " open" : "") + "><summary>✍️ 이 문서 고치기 · 다른 버전 만들기</summary>" + promptBoxHtml("build:" + doc.id, "무엇을 고칠까요?", "예: 도입부를 시청자가 겪는 장면으로 시작하게 다시 쓰고, 썸네일 문구 후보 3개 더 줘") + "</details></div>";
   if(ui.bdView === "sheet"){
     return head + "<div class=\"orig bd-sheet\"><table><thead><tr><th>구분</th><th>칸</th><th>내용</th></tr></thead><tbody>" +
       secs.map(function(s){ return s.fields.map(function(f, i){
@@ -1701,16 +1701,17 @@ function favHtml(){
    탭마다 맨 위에 칸 하나(promptBarHtml) + 구축 문서 · 대본마다 칸(promptBoxHtml).
    cmd kind "prompt" {where, prompt, target?, context} → 맥 Claude 가 그 단계의 스킬로 처리하고, 결과를 그 탭이 보여 주는 파일에 `from: "✍️ 내 지시"` 로 넣는다 (cmd.md).
    대본 고치기는 cmd kind "scriptedit" {rec, prompt} — 같은 대본을 고쳐 쓴다. 쓰던 글은 ui.prDraft 에 지켜 다시 그려도 남는다. */
+/* 탭 → [탭 이름, 결과가 뜨는 탭 id, 그 이름, 예시]. 예시는 어느 브랜드에도 맞는 말로 — 브랜드 이름·번호(P1·K1)를 넣지 않는다 (앱 검증 지침 F15 · §1-1) */
 var PROMPT_TABS = {
-  sum: ["한눈에", "예: 이번 달 송년회 시즌에 맞춰 키 콘텐츠 2편, 풀링 3편 기획해 줘"],
-  brand: ["브랜드", "예: 이 브랜드 타깃으로 바로 찍을 수 있는 콘텐츠 3편 뽑아 줘"],
-  kw: ["키워드", "예: 「송년회」에서 담당자가 진짜 고민하는 말로 키워드 더 찾아서 추천해 줘"],
-  kwset: ["키워드 순위 기준", "예: 검색량 1,000 넘는 말 중 클릭률 높은 것만으로 콘텐츠 추천해 줘"],
-  ref: ["콘텐츠", "예: 위 영상 중 조회÷구독 5배 넘는 것만 골라 그 구성으로 키 콘텐츠 2편 만들어 줘"],
-  rec: ["추천", "예: P2를 웨딩 말고 기업 행사 장면으로 바꾸고, 같은 결로 한 편 더 추천해 줘"],
-  build: ["구축", "예: 다시 착안한 추천 I2를 풀링 문서로 만들고, 키콘 K1과 이어지게 해 줘"],
-  refpage: ["참고 페이지", "예: 일본 행사 회사 블로그 중 포토부스 소재가 많은 곳 더 찾아 줘"],
-  script: ["대본", "예: 고른 대본들을 5분 분량으로 줄이고 도입 3초를 질문으로 바꿔 줘"]
+  sum: ["한눈에", "rec", "콘텐츠 › 추천", "예: 이번 달 시즌에 맞춰 상품 파는 영상 2편, 사람 모으는 영상 3편 기획해 줘"],
+  brand: ["브랜드", "rec", "콘텐츠 › 추천", "예: 이 브랜드 타깃이 요즘 가장 많이 하는 고민으로 바로 찍을 콘텐츠 3편 뽑아 줘"],
+  kw: ["키워드", "kw", "이 탭 「Claude 키워드 추천」", "예: 내 씨앗 단어에서 살 사람이 실제로 검색하는 말로 키워드 더 찾아 줘"],
+  kwset: ["키워드 순위 기준", "rec", "콘텐츠 › 추천", "예: 검색량이 크고 클릭률이 높은 키워드만으로 콘텐츠 추천해 줘"],
+  ref: ["콘텐츠", "rec", "콘텐츠 › 추천", "예: 위 영상 중 구독자보다 5배 넘게 본 것만 골라, 그 구성으로 상품 파는 영상 2편 만들어 줘"],
+  rec: ["추천", "rec", "이 탭 (새 추천 회차)", "예: 두 번째 추천을 다른 장면으로 바꾸고, 같은 결로 한 편 더 추천해 줘"],
+  build: ["구축", "build", "이 탭 (구축 문서)", "예: 오른쪽 다시 착안한 추천 중 첫 번째를 사람 모으는 영상 문서로 만들고, 상품 파는 영상과 이어지게 해 줘"],
+  refpage: ["참고 페이지", "refpage", "이 탭 (후보)", "예: 해외 블로그·뉴스레터 중 내 상품 소재가 많은 곳을 더 찾아 줘"],
+  script: ["대본", "script", "이 탭 (대본)", "예: 고른 대본들을 5분 분량으로 줄이고 도입 3초를 질문으로 바꿔 줘"]
 };
 function prId(key){ return "pr-" + String(key).replace(/[^\w-]/g, "_") }
 function prDraft(key){ return (ui.prDraft || {})[key] || "" }
@@ -1718,12 +1719,17 @@ function promptBoxHtml(key, title, ph, kind){
   var busy = openCmd(kind || "prompt");
   return "<div class=\"prbox\"><div class=\"prbox-h\">✍️ " + esc(title) + "</div>" +
     "<textarea id=\"" + prId(key) + "\" data-prin=\"" + esc(key) + "\" rows=\"2\" maxlength=\"1000\" placeholder=\"" + esc(ph) + "\">" + esc(prDraft(key)) + "</textarea>" +
-    "<div class=\"acts\"><button class=\"btn sm primary\" data-act=\"" + (kind === "scriptedit" ? "scriptedit" : "prompt") + "\" data-key=\"" + esc(key) + "\"" + (busy ? " disabled" : "") + ">" +
-    (busy ? "맥이 하는 중…" : kind === "scriptedit" ? "이대로 고쳐 줘" : "이걸로 만들어 줘") + "</button><span class=\"it-d\">맥의 Claude가 이 자리의 자료를 바탕으로 처리하고, 결과는 이 탭에 떠요.</span></div></div>";
+    "<div class=\"acts\"><button class=\"btn primary\" data-act=\"" + (kind === "scriptedit" ? "scriptedit" : "prompt") + "\" data-key=\"" + esc(key) + "\"" + (busy ? " disabled" : "") + ">" +
+    (busy ? "맥이 하는 중…" : kind === "scriptedit" ? "이대로 고쳐 줘" : "이걸로 만들어 줘") + "</button>" + promptWhereHtml(key) + "</div></div>";
+}
+/* 결과가 어디에 뜨나 — 다른 탭이면 「결과 보기 →」 (2026-11-18 검증: 「결과는 이 탭에」가 사실과 다름) */
+function promptWhereHtml(key){
+  var t = key.indexOf("build:") === 0 ? ["", "build", "이 문서"] : key.indexOf("script:") === 0 ? ["", "script", "이 대본"] : PROMPT_TABS[tab] || ["", tab, "이 탭"];
+  return "<span class=\"it-d\">맥의 Claude가 이 자리 자료로 처리해요 · 결과: " + esc(t[2]) + "</span>" + (t[1] !== tab ? "<button class=\"btn sm\" data-tab=\"" + esc(t[1]) + "\">결과 보기 →</button>" : "");
 }
 function promptBarHtml(){
   var t = PROMPT_TABS[tab]; if(!t || !B()) return "";
-  return "<details class=\"prbar\"" + (prDraft("tab:" + tab) ? " open" : "") + "><summary>✍️ 내 말로 끼어들기 <span class=\"muted\">— 이 탭(" + esc(t[0]) + ") 자료로 바로 시키기</span></summary>" + promptBoxHtml("tab:" + tab, "무엇을 할까요?", t[1]) + "</details>";
+  return "<details class=\"prbar\"" + (prDraft("tab:" + tab) ? " open" : "") + "><summary>✍️ 내 말로 끼어들기 <span class=\"muted\">— 이 탭(" + esc(t[0]) + ") 자료로 바로 시키기</span></summary>" + promptBoxHtml("tab:" + tab, "무엇을 할까요?", t[3]) + "</details>";
 }
 /* 지금 이 자리의 맥락 — 맥이 무엇을 기준으로 할지 알게 넘긴다 */
 function promptContext(key){
@@ -1961,8 +1967,9 @@ function render(){
   ui.later = false;
   var act0 = document.activeElement, key = act0 && (act0.dataset.addseed != null ? "[data-addseed=\"" + CSS.escape(act0.dataset.addseed) + "\"]" : act0.dataset.pfin != null ? "[data-pfin=\"" + CSS.escape(act0.dataset.pfin) + "\"]" : act0.id ? "#" + act0.id : "");
   var v = function(){ return v0() + ({ brand: 1, kw: 1, rec: 1 }[tab] && B() ? nextHtml() : "") };   // 브랜드·키워드·추천 탭 맨 아래에도 「다음 할 일」
+  var selA = null, selB = null; try{ if(act0 && /^(INPUT|TEXTAREA)$/.test(act0.tagName)){ selA = act0.selectionStart; selB = act0.selectionEnd } }catch(e){}   // 커서 위치도 지킨다 (2026-11-18 검증: 다시 그리면 커서가 맨 앞으로 가서 이어 쓴 글이 앞에 붙음)
   document.getElementById("view").innerHTML = sub + runHtml(Object.keys(KIND)) + promptBarHtml() + v();   // ✍️ 탭마다 내 말로 끼어들기
-  if(key){ var back = document.querySelector(key); if(back) back.focus({ preventScroll: true }) }   // 다시 그려도 쓰던 슬라이더·입력칸에 초점을 돌려준다 (키보드로 이어서 움직이게)
+  if(key){ var back = document.querySelector(key); if(back){ back.focus({ preventScroll: true }); try{ if(selA != null && back.setSelectionRange) back.setSelectionRange(selA, selB) }catch(e){} } }   // 다시 그려도 쓰던 슬라이더·입력칸에 초점을 돌려준다 (키보드로 이어서 움직이게)
 }
 
 document.addEventListener("click", function(e){
