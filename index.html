@@ -51,8 +51,8 @@ header>.brand{padding-right:min(46vw,190px)}
 <body>
 <span id="rtdot" aria-hidden="true"></span>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script>window.BRAINY_VERSION = "e630754ff0"; window.BRAINY_APP = {key: "content", name: "콘텐츠 기획", icon: "ct-icon-192.png", sub: "키워드와 트렌드로 주제를 고르고 대본 초안까지", colls: ["ct.data", "ct.set", "cmd"]};</script>
-<script src="shim.js?v=e630754ff0"></script>
+<script>window.BRAINY_VERSION = "64c3195aca"; window.BRAINY_APP = {key: "content", name: "콘텐츠 기획", icon: "ct-icon-192.png", sub: "키워드와 트렌드로 주제를 고르고 대본 초안까지", colls: ["ct.data", "ct.set", "cmd"]};</script>
+<script src="shim.js?v=64c3195aca"></script>
 <script>document.addEventListener("click", function (e) { var b = e.target.closest && e.target.closest("[data-brainy=out]"); if (b && confirm("로그아웃할까요?")) window.BRAINY.signOut(); });</script>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="apple-mobile-web-app-title" content="콘텐츠 기획">
@@ -161,6 +161,12 @@ input[type=range]{width:100%;height:30px;accent-color:var(--ink);margin:8px 0 0}
 /* 한눈에 — 여섯 단계 상자 */
 .pfield{margin-top:12px}.pfield .pl{display:block;font-size:13px;font-weight:650;color:var(--muted);margin-bottom:3px}.pfield textarea{min-height:0}
 .pv{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}.pv>span:first-child,.pv>div:first-child{flex:1;min-width:0}
+.pbox{border:1px solid var(--line);border-radius:14px;margin-top:12px;overflow:hidden;background:var(--surface)}
+.pbox-h{display:flex;gap:6px;align-items:flex-start;padding:12px 14px;background:var(--prod-bg);border-bottom:1px solid color-mix(in srgb,var(--prod) 18%,transparent)}.pbox-h .pn{font-size:17px;font-weight:750;margin-top:4px}
+.pbox-b{padding:2px 14px 14px}
+.pw-h{display:flex;align-items:center;font-size:13px;font-weight:650;color:var(--prod);margin-top:10px}.pw-h .num{margin-left:6px;color:var(--muted)}.pw-h i.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;background:var(--prod)}
+.pwords .it{padding:8px 0 8px 12px;border-top:0;border-left:3px solid var(--prod-bg);margin-top:6px}.pwords .it-h b{font-size:14.5px}
+.pbox .wrec{background:var(--bg);border-radius:10px;padding:10px 12px}
 .prow{display:flex;gap:6px;align-items:center;margin-top:6px}.prow input{min-width:0}.prow input[data-pf=name]{flex:0 0 32%}.prow input[data-pf=what]{flex:1}
 .ref-t{display:flex;gap:8px;align-items:flex-start;justify-content:space-between}.ref-t .mk{width:34px;height:34px;flex:none}.mk.fav[aria-pressed=true]{background:#F5B700;border-color:#F5B700;color:#fff}
 .x0{background:none;border:0;color:inherit;font:inherit;cursor:pointer;padding:0 0 0 4px}
@@ -445,7 +451,8 @@ function identityWordsHtml(){
 /* 브랜드 탭 — 판매 상품 카드 안, 상품마다 「판매 단어」 */
 function productWordsHtml(name){
   var s = S(), list = seedsOf().filter(function(x){ return x.kind === "상품" && x.product === name });
-  return "<div class=\"list\" style=\"margin-top:4px\">" + list.map(function(x){ return seedRowHtml(x, s) }).join("") + "</div>" + wordRecHtml(name, list.length) + seedAddHtml("상품:" + name, list.length, "「" + name + "」 판매 단어 넣기");
+  return "<div class=\"pw-h\"><i class=\"dot p\"></i>판매 단어 <span class=\"num\">" + list.length + "/" + SEED_MAX + "</span></div>" +
+    "<div class=\"list pwords\">" + (list.map(function(x){ return seedRowHtml(x, s) }).join("") || "<p class=\"empty\">아직 판매 단어가 없어요 — 아래에서 넣거나 Claude 추천에서 ＋ 하세요.</p>") + "</div>" + wordRecHtml(name, list.length) + seedAddHtml("상품:" + name, list.length, "「" + name + "」 판매 단어 넣기");
 }
 /* 판매 단어 Claude 추천 (2026-11-17 동욱 "판매 단어도 너가 추천해 주고 넣을 수 있게 — 검색어 기반도 좋고")
    「판매 단어 추천받기」 → cmd wordrec → 맥 Claude 가 상품마다 네이버 검색량·연관 검색어를 보고 고른 단어를
@@ -1525,18 +1532,19 @@ function plistHtml(path){
   }).join("") + "</div>" +
     "<div class=\"row2\" style=\"margin-top:6px\"><input type=\"text\" data-pfin=\"" + esc(path + ":new") + "\" placeholder=\"" + esc(def.hint) + "\" value=\"" + esc(draft(path + ":new", "")) + "\"><button class=\"btn sm\" data-act=\"padd\" data-k=\"" + esc(path) + "\">넣기</button></div></div>";
 }
-/* 판매 상품 — 이름·설명 ✎, 상품 ✕, 맨 아래 ＋ 상품 더하기. 상품마다 판매 단어(씨앗)가 붙는다 */
+/* 판매 상품 — 상품마다 상자 하나(.pbox): 위 띠는 상품(이름·설명 ✎ · 상품 ✕), 안쪽은 그 상품의 판매 단어(씨앗).
+   상품 줄과 단어 줄이 같은 모양이라 헷갈리던 것을 나눔 (2026-11-17 동욱 「판매 상품과 단어가 구별되게」) — 맨 아래 ＋ 상품 더하기 */
 function productsHtml(){
   var ps = profNow().products;
-  return "<div class=\"list\">" + ps.map(function(p, i){
+  return ps.map(function(p, i){
     var key = "prod:" + i;
     var head = ui.pedit === key ?
-      "<div class=\"prow\"><input type=\"text\" data-pfin=\"" + key + ":name\" maxlength=\"30\" placeholder=\"상품 이름\" value=\"" + esc(draft(key + ":name", p.name)) + "\">" +
-        "<input type=\"text\" data-pfin=\"" + key + ":what\" maxlength=\"120\" placeholder=\"무엇을 파나 (한 줄)\" value=\"" + esc(draft(key + ":what", p.what)) + "\"></div><div class=\"acts\">" + editBtns(key) + "</div>"
-      : "<div class=\"pv\"><div><div class=\"it-h\"><b>" + esc(p.name) + "</b></div><div class=\"it-d\">" + esc(p.what || "") + "</div></div><span style=\"display:flex;gap:2px\">" + penBtn(key, p.name) +
-        "<button class=\"mk no\" data-act=\"pdelprod\" data-i=\"" + i + "\" aria-label=\"" + esc(p.name) + " 빼기\" title=\"상품 빼기\">✕</button></span></div>";
-    return "<div class=\"it\"><div class=\"it-m\">" + head + productWordsHtml(p.name) + "</div></div>";
-  }).join("") + "</div>" +
+      "<div class=\"it-m\"><div class=\"prow\" style=\"margin-top:0\"><input type=\"text\" data-pfin=\"" + key + ":name\" maxlength=\"30\" placeholder=\"상품 이름\" value=\"" + esc(draft(key + ":name", p.name)) + "\">" +
+        "<input type=\"text\" data-pfin=\"" + key + ":what\" maxlength=\"120\" placeholder=\"무엇을 파나 (한 줄)\" value=\"" + esc(draft(key + ":what", p.what)) + "\"></div><div class=\"acts\">" + editBtns(key) + "</div></div>"
+      : "<div class=\"it-m\"><span class=\"tag p\">상품 " + (i + 1) + "</span><div class=\"pn\">" + esc(p.name) + "</div>" + (p.what ? "<div class=\"it-d\">" + esc(p.what) + "</div>" : "") + "</div>" +
+        penBtn(key, p.name) + "<button class=\"mk no\" data-act=\"pdelprod\" data-i=\"" + i + "\" aria-label=\"" + esc(p.name) + " 빼기\" title=\"상품 빼기\">✕</button>";
+    return "<div class=\"pbox\"><div class=\"pbox-h\">" + head + "</div><div class=\"pbox-b\">" + productWordsHtml(p.name) + "</div></div>";
+  }).join("") +
     "<h4>＋ 상품 더하기</h4><div class=\"prow\"><input type=\"text\" data-pfin=\"prod:new:name\" maxlength=\"30\" placeholder=\"새 상품 이름\" value=\"" + esc(draft("prod:new:name", "")) + "\">" +
     "<input type=\"text\" data-pfin=\"prod:new:what\" maxlength=\"120\" placeholder=\"무엇을 파나 (한 줄)\" value=\"" + esc(draft("prod:new:what", "")) + "\"><button class=\"btn sm primary\" data-act=\"paddprod\">더하기</button></div>";
 }
