@@ -51,8 +51,8 @@ header>.brand{padding-right:min(46vw,190px)}
 <body>
 <span id="rtdot" aria-hidden="true"></span>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script>window.BRAINY_VERSION = "ad4c466009"; window.BRAINY_APP = {key: "content", name: "콘텐츠 기획", icon: "ct-icon-192.png", sub: "키워드와 트렌드로 주제를 고르고 대본 초안까지", colls: ["ct.data", "ct.set", "cmd", "bchat"]};</script>
-<script src="shim.js?v=ad4c466009"></script>
+<script>window.BRAINY_VERSION = "d6d9f89ec3"; window.BRAINY_APP = {key: "content", name: "콘텐츠 기획", icon: "ct-icon-192.png", sub: "키워드와 트렌드로 주제를 고르고 대본 초안까지", colls: ["ct.data", "ct.set", "cmd", "bchat"]};</script>
+<script src="shim.js?v=d6d9f89ec3"></script>
 <script>document.addEventListener("click", function (e) { var b = e.target.closest && e.target.closest("[data-brainy=out]"); if (b && confirm("로그아웃할까요?")) window.BRAINY.signOut(); });</script>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="apple-mobile-web-app-title" content="콘텐츠 기획">
@@ -100,7 +100,7 @@ nav button{flex:1 0 auto;text-align:center;padding:8px 11px;border-radius:10px;c
 #toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);opacity:0;pointer-events:none;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;font-weight:600;max-width:calc(100vw - 32px);transition:.2s;z-index:50}#toast.on{opacity:1;transform:translate(-50%,0)}
 html{scrollbar-gutter:stable}   /* 짧은 탭에서 스크롤바가 사라져 폭이 15px 바뀌던 것 */
 details.help{margin:2px 0 6px}details.help>summary{font-size:13px;font-weight:600}
-.pastbar{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin:0 0 12px;padding:10px 12px;border-radius:12px;background:#FFF4D6;color:#5a4300;border:1px solid #F0D27A;font-size:14px}.pastbar .mk{width:34px;height:34px}
+.pastbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin:0 0 12px;padding:10px 12px;border-radius:12px;background:#FFF4D6;color:#5a4300;border:1px solid #F0D27A;font-size:14px}.pastbar .mk{width:34px;height:34px}
 .hday{margin:12px 0 2px;font-size:13px;font-weight:700;color:var(--muted)}.list .it.on{outline:2px solid var(--accent);outline-offset:-2px}
 .mk.imp[aria-pressed=true]{background:#6B4FD8;border-color:#6B4FD8;color:#fff}
 .runs{margin:0 0 14px}.runs>summary{padding:8px 4px}
@@ -140,7 +140,7 @@ input[type=date]{font:inherit;font-size:13px;color:var(--ink);background:var(--s
 .btn.sm{padding:6px 11px;font-size:13px}
 .btn:disabled{opacity:.5;cursor:default}
 .acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
-input[type=text],textarea,select{width:100%;font:inherit;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:11px 12px}
+input[type=text],input[type=search],textarea,select{width:100%;font:inherit;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:11px 12px}
 textarea{min-height:150px;resize:vertical;line-height:1.5}
 /* 표시 딱지 — 종류(상품·정체성)·역할(풀링·키)·단계·판정 */
 .tag{display:inline-block;font-size:12px;font-weight:600;padding:1px 7px;border-radius:999px;border:1px solid var(--line);color:var(--muted);white-space:nowrap;vertical-align:1px}
@@ -381,9 +381,10 @@ function ladderHtml(items, cell){
   }).join("") + (items.some(function(x){ return !x.stage }) ? "<p class=\"lead\">단계가 안 붙은 " + items.filter(function(x){ return !x.stage }).length + "개는 사다리에서 빠졌어요.</p>" : "") + "</div>";
 }
 function setS(patch){
+  if(pastOn() && Object.keys(patch).some(function(k){ return /Req$/.test(k) })){ toast("옛 기록을 보는 중이라 맥에 일을 보내지 않아요 — 맨 위 「지금 자료로 돌아가기」 뒤에 눌러 주세요"); return }   // 🕘 그때 결과로 일을 돌리면 지금 자료와 섞인다
   var s = Object.assign({}, SETS[cur] || {}, patch, { updatedAt: new Date().toISOString() });
   SETS[cur] = s;
-  s.cand = candidates(S()).map(function(k){ return { kw: k.kw, score: k.score } });   // 그때 조사 후보 — 맥이 설정.json 으로 받아 기록 PDF 에 쓴다
+  if(!pastOn()) s.cand = candidates(S()).map(function(k){ return { kw: k.kw, score: k.score } });   // 그때 조사 후보 — 맥이 설정.json 으로 받아 기록 PDF 에 쓴다 (옛 기록을 보는 중엔 옛 자료로 다시 세지 않고 그대로 — 2026-11-18 검증)
   if(SETS_LIVE) saveSet(cur); else SET_Q[cur] = Object.assign(SET_Q[cur] || {}, patch);   // 서버 값을 받기 전(이 기기에 남은 옛 사본)이면 바꾼 칸만 모아 뒀다가 받은 뒤에 얹는다
   render();
 }
@@ -412,6 +413,7 @@ function isOpen(c){ return /보내는 중|맥 대기|처리 중/.test(c.status |
 function openCmd(kind){ return CMDS.filter(function(c){ return c.kind === kind && c.brand === cur && isOpen(c) })[0] }
 function send(kind, text, params){
   if(!DB || openCmd(kind)) return;
+  if(pastOn()){ toast("옛 기록을 보는 중이라 맥에 일을 보내지 않아요 — 맨 위 「지금 자료로 돌아가기」 뒤에 눌러 주세요"); return }
   var id = "c" + Date.now().toString(36), at = new Date().toISOString(), b = B();
   if(BASE_KINDS[kind] && b){ params = Object.assign(baseParams(), params || {}); text += baseText() }   // 구축·참고 페이지·대본 일에는 기준 키워드 · 영상 주제를 같이 (content-basekw.js)
   var data = { text: "🎬 콘텐츠 기획 — " + (b ? b.name : (params && params.name) || "") + " " + text, from: "content", app: "content", kind: kind,
@@ -491,6 +493,7 @@ function seedItems(word, far){
 }
 function seedRun(word){ var k = part("kw"); return ((k && k.seeds) || []).filter(function(x){ return x.word === word })[0] || null }
 function seedsPending(){   // 맥이 아직 안 받은 씨앗이 있거나 받는 곳이 바뀌었을 때만 — 씨앗을 빼기만 한 것은 다시 받지 않는다 (2026-11-18 검증: 뺀 뒤 「받는 중」이 안 사라지던 것)
+  if(pastPart("kw")) return false;   // 🕘 옛 키워드 기록을 보는 중 — 지금 씨앗과 견주지 않는다
   var k = part("kw"), have = ((k && k.seeds) || []).map(function(x){ return x.word });
   return seedsOf().some(function(x){ return have.indexOf(x.word) < 0 }) || (!!k && (k.seedSrc || "naver") !== seedSrc());
 }
@@ -1980,12 +1983,15 @@ var DS_SCHEMA = [
 var HIST_GROUPS = [["all", "전체"], ["kw", "키워드", ["kw", "trend", "wordcand", "kwrec"]], ["ct", "콘텐츠", ["search", "analysis", "cmts", "ref", "chancand"]],
   ["rec", "추천", ["rec"]], ["sc", "대본", ["build", "source", "script"]], ["imp", "🔖 한 것"]];
 var HIST_TAB = { kw: "kwall", trend: "kw", wordcand: "brand", kwrec: "kw", search: "ref", analysis: "ref", cmts: "rec", ref: "ref", chancand: "refpage", rec: "rec", build: "build", source: "script", script: "script" };   // 그 기록을 어느 탭에서 보나
+var IMP_GO = { kw: "kwall", rec: "rec", script: "script" };   // 지금 자료에서 모은 것 — 그 탭으로
 var IMP_KINDS = [["run", "돌린 기록"], ["kw", "키워드"], ["vid", "영상"], ["rec", "추천"], ["script", "대본"]];
+var HIST_VIEW = { search: "refView=search", analysis: "refView=search", ref: "refView=videos" };   // 같은 탭 안 그 결과가 있는 칸까지 (2026-11-18 검증: 콘텐츠 검색을 열면 빈 「레퍼런스 영상」 칸이 떴다)
 var PAST = null;   // {brand, id, part, label, at, data} — 과거 기록을 보는 중
 var HCACHE = {};
 
 function hAt(at){ var d = new Date(at); return isNaN(d) ? String(at || "") : (d.getMonth() + 1) + "/" + d.getDate() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2) }
 function histItems(){ var h = part("hist"); return (h && h.items) || [] }
+function pastOn(){ return !!(PAST && PAST.brand === cur) }
 function pastPart(name){ return PAST && PAST.brand === cur && PAST.part === name ? PAST.data : null }
 function impList(){ return (SETS[cur] || {}).imp || [] }
 function impOf(kind, key){ return impList().filter(function(x){ return x.kind === kind && x.key === key })[0] }
@@ -2006,7 +2012,7 @@ function impToggle(el){
 function histOpen(id){
   var x = histItems().filter(function(y){ return y.id === id })[0];
   if(!x){ toast("그 기록이 목록에 없어요"); return }
-  function show(data){ PAST = { brand: cur, id: x.id, part: x.part, label: x.label, at: x.at, data: data }; tab = HIST_TAB[x.part] || "sum"; save("ct.tab", tab); window.scrollTo(0, 0); render() }
+  function show(data){ PAST = { brand: cur, id: x.id, part: x.part, label: x.label, at: x.at, data: data }; tab = HIST_TAB[x.part] || "sum"; save("ct.tab", tab); if(HIST_VIEW[x.part]){ var kv = HIST_VIEW[x.part].split("="); ui[kv[0]] = kv[1] } window.scrollTo(0, 0); render() }
   if(HCACHE[cur + "." + id]) return show(HCACHE[cur + "." + id]);
   if(!x.cloud && !impOf("run", id)){ toast("오래된 기록이라 볼트에만 있어요 — 🔖 하면 맥이 30초 안에 다시 올려요"); return }
   if(!window.BRAINY || !BRAINY.fetch){ toast("이 화면에서는 기록을 받을 수 없어요"); return }
@@ -2063,7 +2069,8 @@ function viewImp(){
     h += "<h4>" + esc(k[1]) + " <span class=\"num muted\">" + items.length + "</span></h4><div class=\"list\">" + items.map(function(x){
       var open = x.kind === "run" ? "<button class=\"btn sm\" data-act=\"histopen\" data-id=\"" + esc(x.key) + "\">열어 보기</button>"
         : x.from ? "<button class=\"btn sm\" data-act=\"histopen\" data-id=\"" + esc(x.from.id) + "\" title=\"이 항목을 모은 그때 기록\">그때 기록</button>"
-        : x.url ? "<a class=\"btn sm\" href=\"" + esc(x.url) + "\" target=\"_blank\" rel=\"noopener\">열기</a>" : "";
+        : x.url ? "<a class=\"btn sm\" href=\"" + esc(x.url) + "\" target=\"_blank\" rel=\"noopener\">열기</a>"
+        : IMP_GO[x.kind] ? "<button class=\"btn sm\" data-go=\"" + IMP_GO[x.kind] + "\">그 탭으로</button>" : "";
       return "<div class=\"it\"><div class=\"it-m\"><div class=\"it-h\"><b>" + esc(x.label) + "</b>" + (x.sub ? " <span class=\"muted\">" + esc(x.sub) + "</span>" : "") + "</div>" +
         "<div class=\"it-d\">🔖 " + esc(hAt(x.at)) + (x.from ? " · " + esc(hAt(x.from.at)) + " 「" + esc(x.from.label) + "」 기록에서" : "") + "</div>" +
         (x.memo ? "<div class=\"it-d\">✎ " + esc(x.memo) + "</div>" : "") + "</div>" +
