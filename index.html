@@ -51,8 +51,8 @@ header>.brand{padding-right:min(46vw,190px)}
 <body>
 <span id="rtdot" aria-hidden="true"></span>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script>window.BRAINY_VERSION = "1f790d71a4"; window.BRAINY_APP = {key: "content", name: "콘텐츠 기획", icon: "ct-icon-192.png", sub: "키워드와 트렌드로 주제를 고르고 대본 초안까지", colls: ["ct.data", "ct.set", "cmd", "bchat"]};</script>
-<script src="shim.js?v=1f790d71a4"></script>
+<script>window.BRAINY_VERSION = "a32333ebeb"; window.BRAINY_APP = {key: "content", name: "콘텐츠 기획", icon: "ct-icon-192.png", sub: "키워드와 트렌드로 주제를 고르고 대본 초안까지", colls: ["ct.data", "ct.set", "cmd", "bchat"]};</script>
+<script src="shim.js?v=a32333ebeb"></script>
 <script>document.addEventListener("click", function (e) { var b = e.target.closest && e.target.closest("[data-brainy=out]"); if (b && confirm("로그아웃할까요?")) window.BRAINY.signOut(); });</script>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="apple-mobile-web-app-title" content="콘텐츠 기획">
@@ -103,6 +103,16 @@ details.help{margin:2px 0 6px}details.help>summary{font-size:13px;font-weight:60
 .pastbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin:0 0 12px;padding:10px 12px;border-radius:12px;background:#FFF4D6;color:#5a4300;border:1px solid #F0D27A;font-size:14px}.pastbar .mk{width:44px;height:44px}
 .pastpill{position:fixed;z-index:30;left:max(16px,env(safe-area-inset-left,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));max-width:calc(100% - 140px);min-height:44px;padding:0 14px;border-radius:22px;border:1px solid #F0D27A;background:#FFF4D6;color:#5a4300;font:inherit;font-size:13px;font-weight:700;box-shadow:0 6px 18px rgba(0,0,0,.15);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hsel{margin-left:auto;flex:none;width:auto;max-width:240px;padding:7px 10px;border-radius:999px;font-size:14px;font-weight:600}.hsel.on{background:#FFF4D6;border-color:#F0D27A;color:#5a4300}@media (max-width:560px){.hsel{max-width:132px;font-size:16px}}
+#setm .setm-bg{position:fixed;inset:0;z-index:50;background:rgba(20,22,28,.38)}
+#setm .setm{position:fixed;z-index:51;left:50%;top:50%;transform:translate(-50%,-50%);width:min(1100px,calc(100vw - 48px));height:min(820px,calc(100vh - 48px));height:min(820px,calc(100dvh - 48px));display:grid;grid-template-rows:auto minmax(0,1fr);background:var(--bg);border:1px solid var(--line);border-radius:20px;box-shadow:0 24px 60px rgba(0,0,0,.3);overflow:hidden}
+#setm .setm-h{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line)}#setm .setm-h b{font-size:18px}#setm .setm-x{margin-left:auto;width:44px;height:44px;border:0;background:none;font-size:20px;cursor:pointer;color:var(--ink)}
+#setm .setm-b{display:grid;grid-template-columns:240px minmax(0,1fr);min-height:0}
+#setm .setm-nav{border-right:1px solid var(--line);padding:12px;overflow:auto}#setm .setm-nav input{margin-bottom:8px}
+#setm .sg{margin:14px 8px 4px;font-size:13px;color:var(--muted);font-weight:600}
+#setm .si{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:8px 12px;border:0;border-radius:10px;background:none;font:inherit;font-size:15px;color:var(--ink);text-align:left;cursor:pointer}#setm .si:hover{background:var(--surface-2)}#setm .si.on{background:var(--surface-2);font-weight:700}#setm .sic{width:22px;text-align:center}
+#setm .setm-c{overflow:auto;padding:18px 22px 40px}#setm .setm-c h2{margin:0 0 4px;font-size:20px}
+html.setm-open,html.setm-open body{overflow:hidden}
+@media (max-width:760px){#setm .setm{left:0;top:0;transform:none;width:100vw;height:100vh;height:100dvh;border-radius:0}#setm .setm-b{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}#setm .setm-nav{border-right:0;border-bottom:1px solid var(--line);display:flex;gap:6px;overflow-x:auto;padding:8px 12px;align-items:center}#setm .setm-nav input,#setm .sg{display:none}#setm .si{width:auto;flex:none;white-space:nowrap;border:1px solid var(--line);border-radius:999px;min-height:40px;padding:6px 14px}#setm .setm-c{padding:14px 16px 40px}}
 .hday{margin:12px 0 2px;font-size:13px;font-weight:700;color:var(--muted)}.list .it.on{outline:2px solid var(--accent);outline-offset:-2px}
 .mk.imp[aria-pressed=true]{background:#6B4FD8;border-color:#6B4FD8;color:#fff}
 .runs{margin:0 0 14px}.runs>summary{padding:8px 4px}
@@ -283,7 +293,7 @@ details.gone{margin-top:12px}details.gone .it{padding:8px 0}
   <header>
     <div class="brand">
       <h1>콘텐츠 기획</h1>
-      <small class="links muted"><a href="/brainy-today/home/">← Brainy 홈</a> · <button type="button" class="linkbtn" data-go="design">⚙ 설계</button> · <button type="button" data-brainy="out">로그아웃</button></small>
+      <small class="links muted"><a href="/brainy-today/home/">← Brainy 홈</a> · <button type="button" class="linkbtn" data-go="design">⚙ 설정</button> · <button type="button" data-brainy="out">로그아웃</button></small>
     </div>
     <div id="brands" role="tablist" aria-label="브랜드"></div>
     <nav id="nav" role="tablist" aria-label="단계"></nav>
@@ -302,7 +312,7 @@ var SETS = {};                      // 브랜드 id → 설정
 var CMDS = [];                      // 이 앱이 보낸 명령 (최근 것부터)
 var cur = new URLSearchParams(location.search).get("b") || load("ct.brand", "");     // 지금 브랜드
 var WANT = cur; if(new URLSearchParams(location.search).get("b")) save("ct.brand", cur);   // 열려고 한 브랜드 — 자료가 덜 들어온 순간 다른 브랜드로 바뀌어도, 들어오면 되돌린다 (2026-11-18 검증) — 주소 ?b=<id> 로 바로 연다 (브랜드마다 홈 화면 바로가기를 따로 둘 수 있다)
-var tab = load("ct.tab", "sum");
+var tab = load("ct.tab", "sum"); if(["design", "tpl", "claude", "hist", "imp"].indexOf(tab) >= 0) tab = "sum";   // 설계 · 기록 칸은 ⚙ 설정 창으로 옮김 (content-settings.js)
 var ui = { kwKind: "all", kwMore: 60, refRole: "all", refSort: "mix", refBuyer: true, refView: "videos", refMore: 20, bdView: load("ct.bdView", "cards"), bdDoc: "", newBrand: false, hide: load("ct.hide", {}) };
 /* 탭은 넷 — 한 탭 안을 칸(subs)으로 나눈다 (2026-11-17 동욱: "한눈에·브랜드는 한 탭 안에 나누고, 키워드는 따로, 콘텐츠·추천 한 탭, 구축·대본 한 탭").
    tab 변수는 칸 id(sum·brand·kw·ref·rec·build·refpage·script) 그대로 — 위 탭을 누르면 그 탭에서 마지막으로 본 칸이 열린다 */
@@ -310,8 +320,7 @@ var TABS = [
   { name: "브랜드", subs: [["sum", "한눈에"], ["brand", "브랜드"]] },
   { name: "키워드", subs: [["kw", "씨앗별 검색어"], ["kwall", "전체 키워드"]] },
   { name: "콘텐츠", subs: [["ref", "콘텐츠"], ["rec", "추천"]] },
-  { name: "대본", subs: [["build", "구축"], ["refpage", "참고 페이지"], ["script", "대본"]] },
-  { name: "설계", subs: [["design", "단계별 기준"], ["tpl", "템플릿"], ["claude", "Claude 모드"], ["hist", "🕘 돌린 기록"], ["imp", "🔖 중요"]] }   // 기록 모아 보기 · 🔖 중요도 설정 쪽에 (2026-11-18 동욱 "앱의 설정 같은 데서") — 단계 탭에서는 칸 줄 오른쪽 🕘 고르기로 바로 (content-hist.js)
+  { name: "대본", subs: [["build", "구축"], ["refpage", "참고 페이지"], ["script", "대본"]] }
 ];
 function tabGroup(id){ return TABS.filter(function(g){ return g.subs.some(function(x){ return x[0] === id }) })[0] || TABS[0] }
 var PARTS = { cmts: ".cmts", kwrec: ".kwrec", wordrec: ".wordrec", auto: ".auto", wordcand: ".wordcand", analysis: ".analysis", ideas: ".ideas", search: ".search", chancand: ".chancand", kw: ".kw", trend: ".trend", ref: ".ref", live: ".live", chan: ".chan", rec: ".rec", build: ".build", script: ".script", source: ".source", log: ".log", hist: ".hist" };
@@ -565,7 +574,7 @@ function seedsHtml(){
     h += "<section class=\"card\" id=\"seed-list\"><div class=\"card-h\"><h3>「" + esc(pickW) + "」 연관 검색어</h3><span class=\"n\">" + all0.length + "개</span></div><div class=\"chips seedchips\">" +
       sd.map(function(x){ return "<button class=\"chip" + (x.word === pickW ? " on" : "") + "\" data-ui=\"seed=" + esc(x.word) + "\"><i class=\"dot " + (x.kind === "상품" ? "p" : "i") + "\"></i>" + esc(x.word) + "<span>" + seedItems(x.word).filter(function(y){ return kwShown(y, x.word) }).length + "</span></button>" }).join("") + "</div>" +
       seedPendingHtml() + srcTabsHtml("sTab", all0.filter(function(y){ return kwShown(y, pickW) }), pickW) + help + kwRecSeedHtml(pickW) +
-      (tab0 !== "naver" && seedSrc() === "naver" ? "<p class=\"note\" style=\"margin-top:8px\">지금은 네이버에서만 받아요. 구글 트렌드도 보려면 설계 탭 「1 단어」에서 「둘 다」로 바꾸세요.</p>" : "") +
+      (tab0 !== "naver" && seedSrc() === "naver" ? "<p class=\"note\" style=\"margin-top:8px\">지금은 네이버에서만 받아요. 구글 트렌드도 보려면 ⚙ 설정 › 단계별 기준 「1 단어」에서 「둘 다」로 바꾸세요.</p>" : "") +
       "<div class=\"list\" style=\"margin-top:6px\">" + (near.slice(0, more).map(function(x){ return kwRow(x, s, true) }).join("") || "<p class=\"empty\">" + (tab0 === "both" ? "네이버와 구글 둘 다에서 나온 말이 아직 없어요." : "이 칸에 나온 연관 검색어가 없어요.") + "</p>") + "</div>" +
       (near.length > more ? "<div class=\"acts\"><button class=\"btn sm\" data-ui=\"seedMore=" + (more + 25) + "\">더 보기 (" + (near.length - more) + "개 남음)</button></div>" : "") +
       (far.length ? "<details style=\"margin-top:12px\"><summary>「" + esc(pickW) + "」 글자가 안 든 말 " + far.length + "개 — 네이버·구글이 같이 찾은 관련 검색어</summary><div class=\"list\" style=\"margin-top:6px\">" +
@@ -732,7 +741,7 @@ function viewKw(){
     "<div class=\"list\" style=\"margin-top:6px\">" + list.slice(0, ui.kwMore).map(function(x){ return kwRow(x, s, true) }).join("") + "</div>" +
     ((list.length > ui.kwMore || ui.kwMore > 60) ? "<div class=\"acts\">" + (list.length > ui.kwMore ? "<button class=\"btn sm\" data-ui=\"kwMore=" + (ui.kwMore + 100) + "\">더 보기 (" + (list.length - ui.kwMore) + "개 남음)</button>" : "") + (ui.kwMore > 60 ? "<button class=\"btn sm\" data-ui=\"kwMore=60\">60개로 접기</button>" : "") + "</div>" : "") + "</section>";
   h += "<section class=\"card\"><details><summary>점수 계산 · 자료 출처</summary><div class=\"small\" style=\"margin-top:8px;display:grid;gap:6px\">" +
-    "<p>점수 = " + kwCrit().order.filter(function(id){ return kwWeights()[id] }).map(function(id){ return KWCRIT.filter(function(q){ return q.id === id })[0].name + " " + kwWeights()[id] }).join(" : ") + " 비중. 클릭률은 월 검색 200 미만이면 그만큼 덜 믿어요. <button class=\"chip\" data-go=\"design|dsOpen=kw\">설계에서 바꾸기 →</button></p>" +
+    "<p>점수 = " + kwCrit().order.filter(function(id){ return kwWeights()[id] }).map(function(id){ return KWCRIT.filter(function(q){ return q.id === id })[0].name + " " + kwWeights()[id] }).join(" : ") + " 비중. 클릭률은 월 검색 200 미만이면 그만큼 덜 믿어요. <button class=\"chip\" data-go=\"design|dsOpen=kw\">설정에서 바꾸기 →</button></p>" +
     "<p>검색량·클릭률: " + esc(k.source || "") + " · " + day(k.updatedAt) + "</p>" +
     "<p>상승세(최근 4주 ÷ 그 앞 8주): " + (t ? esc(t.source || "") + " · " + day(t.updatedAt) + " · " + Object.keys(t.items || {}).length + "개 키워드" : "아직 받지 않음") + ". 검색이 적은 키워드는 구글이 값을 0으로 줘서 「값 적음」으로 두고 점수에서는 중간값으로 봐요.</p>" +
     "<p>경쟁(난이도): 네이버 경쟁정도와 월평균 노출 광고 수로 봐요 — 높음 + 광고 9개 이상이면 어려움, 광고 5개 이하면 쉬움. 주제 묶음: 같은 주제 말이 든 키워드의 검색량을 더한 값. 빈 곳: 구매 결인데 아직 조사·추천에 안 나온 키워드.</p>" +
@@ -1299,7 +1308,7 @@ function recCritHtml(rd){
   var nRole = roleNames().reduce(function(t, n){ return t + (s.roles[n] || 0) }, 0), busy = openCmd("recommend");
   var hasMat = (c.use.ref && part("ref")) || (c.use.fav && favIds.length) || (c.use.pin && pins.length) || (c.use.seed && seedsOf().length);
   return "<section class=\"card\">" + dsLine("rec") + "<div class=\"acts\"><button class=\"btn primary\" data-act=\"recommend\"" + (busy || !nRole || !hasMat ? " disabled" : "") + ">" + (busy ? "맥이 추천 만드는 중…" : rd ? "이 기준으로 추천 새로 받기" : "이 기준으로 추천 받기") + "</button>" +
-    (!hasMat ? "<span class=\"lead\" style=\"margin:0\">켠 재료가 비어 있어요 — 설계에서 재료를 켜세요.</span>" : !nRole ? "<span class=\"lead\" style=\"margin:0\">편 수가 0이에요.</span>" : "") + "</div></section>";
+    (!hasMat ? "<span class=\"lead\" style=\"margin:0\">켠 재료가 비어 있어요 — ⚙ 설정 › 단계별 기준에서 재료를 켜세요.</span>" : !nRole ? "<span class=\"lead\" style=\"margin:0\">편 수가 0이에요.</span>" : "") + "</div></section>";
 }
 function recCritAct(k){
   var c = recCrit(), o = { order: c.set ? c.order.slice() : undefined, off: Object.assign({}, c.off), use: Object.assign({}, c.use), favFirst: c.favFirst, minRatio: c.minRatio };
@@ -1886,7 +1895,7 @@ function kwPullHtml(){
 /* ── 설계 탭 — 단계마다 자동 추천 기준을 한 곳에서, 같은 모양으로 (2026-11-18 동욱) ──
    "각 워크플로우마다 자동 추천한 기준을 설정에서 설계를 조율할 수 있게, 템플릿화할 수 있게. 지금은 흩어져 있는데 각 단계마다 통일된 UX/UI.
     설계에서도 대화창이 있어서 내가 요구하면 그에 맞게 세팅도 되고."
-   단계 칸 = 번호 · 이름 · 무엇을 정하나 · 「지금」 한 줄 · 접힌 「바꾸기」(그 단계의 조절 칸). 각 단계 탭에는 dsLine(한 줄 + 「설계에서 바꾸기 →」)만 둔다.
+   단계 칸 = 번호 · 이름 · 무엇을 정하나 · 「지금」 한 줄 · 접힌 「바꾸기」(그 단계의 조절 칸). 각 단계 탭에는 dsLine(한 줄 + 「설정에서 바꾸기 →」)만 둔다.
    값은 그대로 그 단계의 ct.set 칸(seedSrc · kwCrit · anaOpt · recCrit · roles · rpOpt) — 템플릿은 그 칸들을 한 벌로 ct.set/_tpl 에 저장한다. */
 var DS = [
   { id: "word", name: "단어 — 연관 검색어 받는 곳 · 나라", what: "씨앗 단어마다 어디서 · 어느 나라 기준으로 연관 검색어를 받을지", keys: ["seedSrc", "kwCountry"],
@@ -1910,13 +1919,13 @@ function dsChanged(st){ var c = SETS[cur] || {}; return st.keys.some(function(k)
 /* 각 단계 탭 맨 위의 한 줄 — 모든 단계가 같은 모양 */
 function dsLine(id){
   var st = dsStage(id); if(!st) return "";
-  return "<div class=\"dsline\"><span><b>기준</b> " + esc(st.sum()) + (dsChanged(st) ? "" : " <span class=\"muted\">(기본)</span>") + "</span><button class=\"chip\" data-go=\"design|dsOpen=" + id + "\">설계에서 바꾸기 →</button></div>";
+  return "<div class=\"dsline\"><span><b>기준</b> " + esc(st.sum()) + (dsChanged(st) ? "" : " <span class=\"muted\">(기본)</span>") + "</span><button class=\"chip\" data-go=\"design|dsOpen=" + id + "\">설정에서 바꾸기 →</button></div>";
 }
 function viewDesign(){
   if(!B()) return "<p class=\"empty\">브랜드를 먼저 고르세요.</p>";
-  var h = "<section class=\"card\"><div class=\"card-h\"><h3>설계</h3><span class=\"n\">" + esc(B().name) + "</span></div>" +
+  var h = "<section class=\"card\"><div class=\"card-h\"><h3>말로 바꾸기</h3><span class=\"n\">" + esc(B().name) + "</span></div>" +
     "<p class=\"lead\">맥이 단계마다 무엇을 기준으로 자동 추천할지 여기서 정해요. 바꾸면 바로 저장되고, 다음에 맥이 일할 때부터 그대로 써요. 잘 맞는 한 벌은 「템플릿」에 저장해 다른 브랜드에도 써요.</p>" +
-    "<h4>말로 바꾸기</h4><div class=\"row2\"><input type=\"text\" id=\"ds-ask\" data-dsask=\"1\" placeholder=\"예: 추천은 좋아요 많은 댓글을 제일 먼저 보고, 구독자보다 3배 이상 본 영상만\" value=\"" + esc(ui.dsDraft || "") + "\"><button class=\"btn primary\" data-act=\"dsask\">바꿔 줘</button></div>" +
+    "<div class=\"row2\"><input type=\"text\" id=\"ds-ask\" data-dsask=\"1\" placeholder=\"예: 추천은 좋아요 많은 댓글을 제일 먼저 보고, 구독자보다 3배 이상 본 영상만\" value=\"" + esc(ui.dsDraft || "") + "\"><button class=\"btn primary\" data-act=\"dsask\">바꿔 줘</button></div>" +
     "<p class=\"it-d\" style=\"margin-top:4px\">✦ Brainy 대화가 열려 지금 기준을 읽고 바꿔요. 무엇을 어떻게 바꿨는지 대화에 남아요.</p></section>";
   DS.forEach(function(st, i){
     var open = ui.dsOpen === st.id;
@@ -1925,7 +1934,7 @@ function viewDesign(){
       "<details class=\"wbox\"" + (open ? " open" : "") + "><summary><b>바꾸기</b>" + (dsChanged(st) ? "<span class=\"wsum\">기본값으로 되돌리기는 맨 아래</span>" : "") + "</summary><div class=\"wbody\">" + st.body() +
       (dsChanged(st) ? "<div class=\"acts\"><button class=\"btn sm\" data-act=\"dsreset\" data-v=\"" + st.id + "\">이 단계 기본값으로</button></div>" : "") + "</div></details></section>";
   });
-  h += "<section class=\"card\"><div class=\"card-h\"><h3>Claude 모드</h3></div><p class=\"dsnow\"><b>지금</b> " + esc(claudeSummary()) + "</p><div class=\"acts\"><button class=\"btn sm\" data-tab=\"claude\">Claude 모드 칸으로 →</button></div></section>";
+  h += "<section class=\"card\"><div class=\"card-h\"><h3>Claude 모드</h3></div><p class=\"dsnow\"><b>지금</b> " + esc(claudeSummary()) + "</p><div class=\"acts\"><button class=\"btn sm\" data-setgo=\"claude\">Claude 모드 칸으로 →</button></div></section>";
   return h;
 }
 /* 템플릿 — 설계 한 벌(단계 칸 값 전부)을 이름 붙여 저장하고 다른 브랜드에 적용. 앱 전체에 한 목록 ct.set/_tpl {list:[{id, name, from, at, values}]} */
@@ -2012,21 +2021,21 @@ function impOf(kind, key){ return impList().filter(function(x){ return x.kind ==
 /* 🔖 버튼 — 어느 목록에 붙여도 같은 모양 */
 function impBtn(kind, key, label, sub, url){
   var on = !!impOf(kind, key);
-  return "<button class=\"mk imp\" data-act=\"imp\" data-kind=\"" + kind + "\" data-key=\"" + esc(key) + "\" data-label=\"" + esc(label || key) + "\" data-sub=\"" + esc(sub || "") + "\" data-url=\"" + esc(url || "") + "\" aria-pressed=\"" + on + "\" title=\"" + (on ? "🔖 중요에서 빼기" : "🔖 중요에 모아 두기 — 설계 › 🔖 중요에서 언제든 다시 봄") + "\" aria-label=\"중요\">🔖</button>";
+  return "<button class=\"mk imp\" data-act=\"imp\" data-kind=\"" + kind + "\" data-key=\"" + esc(key) + "\" data-label=\"" + esc(label || key) + "\" data-sub=\"" + esc(sub || "") + "\" data-url=\"" + esc(url || "") + "\" aria-pressed=\"" + on + "\" title=\"" + (on ? "🔖 중요에서 빼기" : "🔖 중요에 모아 두기 — ⚙ 설정 › 🔖 중요에서 언제든 다시 봄") + "\" aria-label=\"중요\">🔖</button>";
 }
 function impToggle(el){
   var d = el.dataset, list = impList().slice(), i = -1;
   list.forEach(function(x, j){ if(x.kind === d.kind && x.key === d.key) i = j });
   if(i >= 0){ list.splice(i, 1); toast("🔖 중요에서 뺐어요") }
   else { list.unshift({ kind: d.kind, key: d.key, label: d.label, sub: d.sub || "", url: d.url || "", at: new Date().toISOString(),
-    from: PAST && PAST.brand === cur ? { id: PAST.id, at: PAST.at, label: PAST.label } : null }); toast("🔖 중요에 모았어요 — 「설계 › 🔖 중요」에서 봐요") }
+    from: PAST && PAST.brand === cur ? { id: PAST.id, at: PAST.at, label: PAST.label } : null }); toast("🔖 중요에 모았어요 — 「⚙ 설정 › 🔖 중요」에서 봐요") }
   setS({ imp: list });
 }
 /* 과거 기록 열기 — 본문을 받아 그 단계 탭을 그때 결과로 */
 function histOpen(id, stay){
   var x = histItems().filter(function(y){ return y.id === id })[0];
   if(!x){ toast("그 기록이 목록에 없어요"); return }
-  function show(data){ PAST = { brand: cur, id: x.id, part: x.part, label: x.label, at: x.at, data: data }; if(!stay){ tab = HIST_TAB[x.part] || "sum"; save("ct.tab", tab) } if(HIST_VIEW[x.part]){ var kv = HIST_VIEW[x.part].split("="); ui[kv[0]] = kv[1] }
+  function show(data){ ui.set = null; PAST = { brand: cur, id: x.id, part: x.part, label: x.label, at: x.at, data: data }; if(!stay){ tab = HIST_TAB[x.part] || "sum"; save("ct.tab", tab) } if(HIST_VIEW[x.part]){ var kv = HIST_VIEW[x.part].split("="); ui[kv[0]] = kv[1] }
     window.scrollTo(0, 0); render();
     var spot = HIST_SPOT[x.part], el = spot && document.querySelector(spot); if(!el) return;
     var hd = document.querySelector("header"), top = (hd ? hd.getBoundingClientRect().bottom : 0) + 12;   // 위에 붙는 머리 칸만큼 비켜서
@@ -2112,6 +2121,35 @@ function histAct(name, el){
     x.memo = m.trim().slice(0, 200); if(!x.memo) delete x.memo; setS({ imp: list }); return true;
   }
   return false;
+}
+
+/* ── ⚙ 설정 창 — 왼쪽 목록에서 고르고 오른쪽에서 바꾸는 창 하나 ──
+   2026-11-18 동욱 (Claude 앱 설정 창을 보여 주며): "이렇게 설정 안에서 고르고 설정을 할 수 있게 만들라고".
+   탭 줄의 「설계」 그룹을 없애고, 단계별 기준 · 템플릿 · Claude 모드 · 돌린 기록 · 🔖 중요를 이 창의 칸으로 둔다.
+   칸 화면은 각 파일의 view 함수(viewDesign · viewTpl · viewClaude · viewHist · viewImp)를 그대로 쓴다.
+   여는 곳: 머리 「⚙ 설정」 · 단계 탭의 「설계에서 바꾸기 →」(data-go="design|dsOpen=…") · 앱 대화 open_tab. 열린 칸 = ui.set (닫히면 null) */
+var SETTINGS = [
+  { name: "자동 추천 기준", items: [["design", "단계별 기준", "🎚", "단계마다 자동 추천이 무엇을 보고 고르나"], ["tpl", "템플릿", "🗂", "설계 묶음 저장 · 다른 브랜드에 적용"]] },
+  { name: "기록", items: [["hist", "돌린 기록", "🕘", "단계를 돌릴 때마다 남은 결과"], ["imp", "중요", "🔖", "기간 상관없이 모아 둔 것"]] },
+  { name: "앱", items: [["claude", "Claude 모드", "🤖", "대화 · 일마다 빠름 · 보통 · 깊게"]] }
+];
+var SET_VIEW = { design: function(){ return viewDesign() }, tpl: function(){ return viewTpl() }, claude: function(){ return viewClaude() }, hist: function(){ return viewHist() }, imp: function(){ return viewImp() } };
+function isSet(id){ return !!SET_VIEW[id] }
+function setOpen(id){ ui.set = isSet(id) ? id : "design"; save("ct.set.last", ui.set); render() }
+function setClose(){ ui.set = null; render() }
+function settingsHtml(){
+  if(!ui.set) return "";
+  var q = String(ui.setQ || "").trim(), cur0 = ui.set;
+  var nav = SETTINGS.map(function(g){
+    var its = g.items.filter(function(x){ return !q || (x[1] + " " + x[3]).indexOf(q) >= 0 });
+    if(!its.length) return "";
+    return "<div class=\"sg\">" + esc(g.name) + "</div>" + its.map(function(x){ return "<button class=\"si" + (x[0] === cur0 ? " on" : "") + "\" data-setgo=\"" + x[0] + "\" title=\"" + esc(x[3]) + "\"><span class=\"sic\">" + x[2] + "</span>" + esc(x[1]) + "</button>" }).join("");
+  }).join("") || "<p class=\"lead\" style=\"padding:8px\">「" + esc(q) + "」 칸이 없어요.</p>";
+  var it = []; SETTINGS.forEach(function(g){ g.items.forEach(function(x){ if(x[0] === cur0) it = x }) });
+  return "<div class=\"setm-bg\" data-setclose=\"1\"></div><div class=\"setm\" role=\"dialog\" aria-modal=\"true\" aria-label=\"설정\">" +
+    "<div class=\"setm-h\"><b>설정</b><span class=\"muted\">" + esc((B() || {}).name || "") + "</span><button class=\"setm-x\" data-setclose=\"1\" aria-label=\"설정 닫기\">✕</button></div>" +
+    "<div class=\"setm-b\"><nav class=\"setm-nav\"><input type=\"search\" id=\"setq\" placeholder=\"검색\" value=\"" + esc(q) + "\" aria-label=\"설정 칸 찾기\">" + nav + "</nav>" +
+    "<div class=\"setm-c\" id=\"setm-c\"><h2>" + (it[2] || "") + " " + esc(it[1] || "") + "</h2><p class=\"lead\">" + esc(it[3] || "") + "</p>" + SET_VIEW[cur0]() + "</div></div></div>";
 }
 
 /* ── ✍️ 내 말로 끼어들기 — 어느 탭에서든 내 지시로 워크플로우 중간에 들어가 콘텐츠를 만든다 ──
@@ -2486,23 +2524,29 @@ function render(){
   document.getElementById("nav").innerHTML = TABS.map(function(g, i){ var to = last[g.name] && g.subs.some(function(x){ return x[0] === last[g.name] }) ? last[g.name] : g.subs[0][0];
     return "<button role=\"tab\" class=\"" + (g === grp ? "on" : "") + "\" data-tab=\"" + to + "\"><span>" + (i + 1) + "</span>" + g.name + "</button>" }).join("");
   var sub = grp.subs.length > 1 ? "<div class=\"subnav\" role=\"tablist\">" + grp.subs.map(function(x){ return "<button role=\"tab\" class=\"" + (tab === x[0] ? "on" : "") + "\" data-tab=\"" + x[0] + "\">" + x[1] + "</button>" }).join("") + histPickHtml() + "</div>" : histPickHtml() ? "<div class=\"subnav\">" + histPickHtml() + "</div>" : "";
-  var v0 = { sum: viewSum, brand: viewBrand, kw: viewKw, kwall: viewKw, ref: viewRef, rec: viewRec, build: viewBuild, refpage: viewRefPage, claude: viewClaude, script: viewScript, design: viewDesign, tpl: viewTpl, hist: viewHist, imp: viewImp }[tab] || viewSum;
+  var v0 = { sum: viewSum, brand: viewBrand, kw: viewKw, kwall: viewKw, ref: viewRef, rec: viewRec, build: viewBuild, refpage: viewRefPage, script: viewScript }[tab] || viewSum;
   ui.later = false;
   /* 초점 돌려주기는 앱 화면(#view) 안 칸만 — 구석 Brainy 대화창(#bc-text)에 쓰는 중에 맥 자료가 와서 다시 그리면, 그 칸의 커서를 다시 놓다가 한글 조합이 끊겨 글이 깨졌다 (2026-11-18 동욱: "대화창을 쓰면 글이 깨진다") */
-  var act0 = document.activeElement; if(act0 && !document.getElementById("view").contains(act0)) act0 = null;
+  var act0 = document.activeElement, sm0 = document.getElementById("setm"); if(act0 && !document.getElementById("view").contains(act0) && !(sm0 && sm0.contains(act0))) act0 = null;   // ⚙ 설정 창 안 입력칸도
   var key = act0 && (act0.dataset.addseed != null ? "[data-addseed=\"" + CSS.escape(act0.dataset.addseed) + "\"]" : act0.dataset.pfin != null ? "[data-pfin=\"" + CSS.escape(act0.dataset.pfin) + "\"]" : act0.id ? "#" + act0.id : "");
   var v = function(){ return ({ build: 1, refpage: 1, script: 1 }[tab] && B() ? baseBarHtml() : "") + v0() + ({ brand: 1, kw: 1, rec: 1 }[tab] && B() ? nextHtml() : "") + undoToastHtml() };   // 대본 탭 세 칸 맨 위에 기준 키워드 · 영상 주제   // 브랜드·키워드·추천 탭 맨 아래에도 「다음 할 일」
   var selA = null, selB = null; try{ if(act0 && /^(INPUT|TEXTAREA)$/.test(act0.tagName)){ selA = act0.selectionStart; selB = act0.selectionEnd } }catch(e){}   // 커서 위치도 지킨다 (2026-11-18 검증: 다시 그리면 커서가 맨 앞으로 가서 이어 쓴 글이 앞에 붙음)
   document.getElementById("view").innerHTML = sub + pastBarHtml() + runHtml(Object.keys(KIND)) + promptBarHtml() + v();   // ✍️ 탭마다 내 말로 끼어들기
+  var sm = document.getElementById("setm"); if(!sm){ sm = document.createElement("div"); sm.id = "setm"; document.body.appendChild(sm) }
+  var keepTop = (document.getElementById("setm-c") || {}).scrollTop || 0; sm.innerHTML = settingsHtml(); var smc = document.getElementById("setm-c"); if(smc) smc.scrollTop = keepTop;   // ⚙ 설정 창 — 다시 그려도 보던 자리 그대로
+  document.documentElement.classList.toggle("setm-open", !!ui.set);
   if(key){ var back = document.querySelector(key); if(back){ back.focus({ preventScroll: true }); try{ if(selA != null && back.setSelectionRange) back.setSelectionRange(selA, selB) }catch(e){} } }   // 다시 그려도 쓰던 슬라이더·입력칸에 초점을 돌려준다 (키보드로 이어서 움직이게)
 }
 
 document.addEventListener("click", function(e){
-  var t = e.target.closest("[data-tab],[data-brand],[data-act],[data-hide],[data-set],[data-ui],[data-pin],[data-ex],[data-pick],[data-copy],[data-go]");
+  var t = e.target.closest("[data-tab],[data-brand],[data-act],[data-hide],[data-set],[data-ui],[data-pin],[data-ex],[data-pick],[data-copy],[data-go],[data-setgo],[data-setclose]");
   if(!t) return;
   var d = t.dataset;
-  if(d.go){ var gp = d.go.split("|"); if(gp[1]){ var gk = gp[1].split("="); ui[gk[0]] = gk[1] } tab = gp[0]; save("ct.tab", tab); window.scrollTo(0, 0); render();
-    if(tab === "design" && ui.dsOpen){ var dz = document.getElementById("ds-" + ui.dsOpen); if(dz) window.scrollTo(0, dz.getBoundingClientRect().top + window.scrollY - 120) }   // 「설계에서 바꾸기 →」는 그 단계 칸으로
+  if(d.setclose){ setClose(); return }   // ⚙ 설정 창 닫기 (✕ · 바깥)
+  if(d.setgo){ ui.set = d.setgo; save("ct.set.last", ui.set); render(); var sc0 = document.getElementById("setm-c"); if(sc0) sc0.scrollTop = 0; return }   // 설정 창 왼쪽 목록
+  if(d.go){ var gp = d.go.split("|"); if(gp[1]){ var gk = gp[1].split("="); ui[gk[0]] = gk[1] }
+    if(isSet(gp[0])){ setOpen(gp[0]); var sc = document.getElementById("setm-c"), dz = gp[0] === "design" && ui.dsOpen && document.getElementById("ds-" + ui.dsOpen); if(sc){ sc.scrollTop = dz ? dz.getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop - 12 : 0 } return }   // 「설계에서 바꾸기 →」는 설정 창의 그 단계 칸으로
+    ui.set = null; tab = gp[0]; save("ct.tab", tab); window.scrollTo(0, 0); render();
     return }   // 한눈에 → 그 탭 (필요하면 그 탭의 보기도 맞춘다)
   if(d.tab){ tab = d.tab; save("ct.tab", tab); window.scrollTo(0, 0); render(); return }
   if(d.brand){ pickBrand(d.brand); return }
@@ -2526,6 +2570,7 @@ document.addEventListener("input", function(e){
   if(e.target.dataset.wordin != null) ui.wDraft = e.target.value;
   if(e.target.dataset.dsask != null) ui.dsDraft = e.target.value;   // 설계 「말로 바꾸기」 · 템플릿 이름 — 다시 그려도 쓰던 글을 지킨다
   if(e.target.dataset.tplin != null) ui.tplDraft = e.target.value;
+  if(e.target.id === "setq"){ ui.setQ = e.target.value; render() }   // ⚙ 설정 칸 찾기
   if(e.target.id === "impq"){ ui.impQ = e.target.value; render() }   // 🔖 중요 찾기 — 치는 대로 걸러 보기
   if(e.target.dataset.basekw != null) ui.baseDraft = e.target.value;   // 기준 키워드 넣기 칸
   if(e.target.id === "base-topic") ui.topicDraft = e.target.value;   // 영상 주제 한 줄 — 저장 전 쓰던 글
@@ -2558,6 +2603,7 @@ document.addEventListener("keyup", function(e){
   if(e.key !== "Enter" || !enterWait || enterWait !== e.target) return;
   var t = enterWait; enterWait = null; enterAct(t);
 });
+document.addEventListener("keydown", function(e){ if(e.key === "Escape" && ui.set){ setClose() } });   // ⚙ 설정 창 — Esc 로 닫기
 document.addEventListener("change", function(e){
   if(e.target.id === "hsel"){ if(e.target.value) histOpen(e.target.value, true); else histClose(); return }   // 🕘 이 탭 결과 기록 고르기
   if(e.target.id === "auto-n"){ var ao6 = autoOpt(); ao6.n = autoN(e.target.value); e.target.value = ao6.n; setS({ autoOpt: ao6 }) }   // 🚀 자동으로 — 편 수 직접 넣기 (1편 아래로는 1편)
@@ -2743,15 +2789,15 @@ render();
       return L.join("\n");
     },
     tools: [
-      { name: "open_tab", description: "콘텐츠 기획 앱의 탭을 연다: sum(한눈에) · brand(브랜드) · kw(키워드 › 씨앗별 검색어) · kwall(키워드 › 전체 키워드) · ref(콘텐츠) · rec(추천) · build(구축) · refpage(참고 페이지) · script(대본) · design(설계 — 단계별 기준) · tpl(템플릿) · claude(Claude 모드) · hist(설계 › 🕘 돌린 기록) · imp(설계 › 🔖 중요).",
+      { name: "open_tab", description: "콘텐츠 기획 앱의 탭을 연다: sum(한눈에) · brand(브랜드) · kw(키워드 › 씨앗별 검색어) · kwall(키워드 › 전체 키워드) · ref(콘텐츠) · rec(추천) · build(구축) · refpage(참고 페이지) · script(대본) · 그리고 ⚙ 설정 창의 칸: design(단계별 기준) · tpl(템플릿) · claude(Claude 모드) · hist(🕘 돌린 기록) · imp(🔖 중요).",
         inputSchema: { type: "object", properties: { tab: { type: "string", enum: ["sum", "brand", "kw", "kwall", "ref", "rec", "build", "refpage", "script", "design", "tpl", "claude", "hist", "imp"] } }, required: ["tab"] },
-        execute: function (i) { tab = i.tab; save("ct.tab", tab); window.scrollTo(0, 0); render(); return subName(i.tab); } },
+        execute: function (i) { if (isSet(i.tab)) { setOpen(i.tab); return "⚙ 설정 창 › " + i.tab; } ui.set = null; tab = i.tab; save("ct.tab", tab); window.scrollTo(0, 0); render(); return subName(i.tab); } },   // 설계 · 기록 칸은 ⚙ 설정 창
       { name: "set_design", description: "지금 브랜드의 설계(단계별 자동 추천 기준)를 바꾼다. 동욱이 설정을 바꿔 달라고 분명히 말했을 때만. name 은 seedSrc · kwCrit · anaOpt · recCrit · roles · rpOpt 중 하나, value 는 [지금 앱 상태]의 「설계 칸과 값 모양」대로 그 칸 전체 값(바꾸지 않는 부분도 지금 값 그대로 넣는다). null 이면 기본값으로. 바꾼 뒤 무엇이 어떻게 바뀌었는지 한 줄씩 말한다.",
         inputSchema: { type: "object", properties: { name: { type: "string", enum: DS_KEYS }, value: {} }, required: ["name", "value"] },
         execute: function (i) {
           if (DS_KEYS.indexOf(i.name) < 0) return "바꿀 수 없는 칸이에요: " + i.name;
           var v = i.value; if (typeof v === "string" && i.name !== "seedSrc") { try { v = JSON.parse(v); } catch (e) {} }
-          var p = {}; p[i.name] = v == null ? null : v; setS(p); tab = "design"; ui.dsOpen = (DS.filter(function (st) { return st.keys.indexOf(i.name) >= 0; })[0] || {}).id || ""; save("ct.tab", tab); render();
+          var p = {}; p[i.name] = v == null ? null : v; setS(p); ui.set = "design"; ui.dsOpen = (DS.filter(function (st) { return st.keys.indexOf(i.name) >= 0; })[0] || {}).id || ""; render();
           return i.name + " 을 바꿨어요 → " + JSON.stringify(v).slice(0, 300);
         } }
     ]
