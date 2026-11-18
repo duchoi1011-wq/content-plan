@@ -51,8 +51,8 @@ header>.brand{padding-right:min(46vw,190px)}
 <body>
 <span id="rtdot" aria-hidden="true"></span>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script>window.BRAINY_VERSION = "397613e4ad"; window.BRAINY_APP = {key: "content", name: "콘텐츠 기획", icon: "ct-icon-192.png", sub: "키워드와 트렌드로 주제를 고르고 대본 초안까지", colls: ["ct.data", "ct.set", "cmd", "bchat"]};</script>
-<script src="shim.js?v=397613e4ad"></script>
+<script>window.BRAINY_VERSION = "76ee652c44"; window.BRAINY_APP = {key: "content", name: "콘텐츠 기획", icon: "ct-icon-192.png", sub: "키워드와 트렌드로 주제를 고르고 대본 초안까지", colls: ["ct.data", "ct.set", "cmd", "bchat"]};</script>
+<script src="shim.js?v=76ee652c44"></script>
 <script>document.addEventListener("click", function (e) { var b = e.target.closest && e.target.closest("[data-brainy=out]"); if (b && confirm("로그아웃할까요?")) window.BRAINY.signOut(); });</script>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="apple-mobile-web-app-title" content="콘텐츠 기획">
@@ -88,7 +88,7 @@ header{position:sticky;top:env(safe-area-inset-top, 0px);z-index:5;background:co
 h1{font-size:22px;font-weight:800;margin:0;letter-spacing:-.03em;display:flex;align-items:center;gap:9px}
 h1::before{content:"";width:22px;height:22px;border-radius:7px;background:linear-gradient(135deg,var(--accent),var(--accent2))}
 .brand .links{flex-basis:100%;font-family:var(--f-body);font-size:12px}
-.links a,.links button{font:inherit;color:inherit;background:none;border:0;padding:10px 2px;text-decoration:underline;cursor:pointer}
+.links a,.links button{font:inherit;color:inherit;background:none;border:0;padding:13px 4px;display:inline-block;min-width:44px;text-align:center;text-decoration:underline;cursor:pointer}
 nav{display:flex;gap:2px;margin-top:12px;overflow-x:auto;scrollbar-width:none;background:var(--surface);border-radius:14px;padding:4px;box-shadow:var(--shadow)}
 nav::-webkit-scrollbar{display:none}
 nav button{flex:1 0 auto;text-align:center;padding:8px 11px;border-radius:10px;color:var(--muted);background:none;border:0;font:inherit;font-weight:600;font-size:14px;white-space:nowrap;cursor:pointer}
@@ -546,9 +546,8 @@ function wordRecHtml(name, n){
 /* 키워드 탭 맨 위 — 씨앗을 고르면 그 씨앗의 연관 검색어. 단어 고치기는 브랜드 탭 한 곳에서 */
 function seedsHtml(){
   var sd = seedsOf(), s = S(), src = SEED_SRC.filter(function(o){ return o[0] === seedSrc() })[0];
-  var h = "<section class=\"card\"><div class=\"card-h\"><h3>씨앗 단어</h3><button class=\"chip\" data-go=\"brand\">단어 고치기 →</button></div>" +
-    "<details class=\"help\"><summary>씨앗 단어가 뭔가요?</summary><p class=\"lead\">브랜드 정체성 단어와 상품 판매 단어마다 " + esc(src ? src[1] : "") + (seedSrc() === "both" ? "(네이버 + 구글)" : "") + "에서 받은 연관 검색어예요. 쓸 검색어에 ★을 누르면 「검증한 키워드」가 되고, 다음 단계(조사·추천·대본)는 ★한 것 위주로 가요.</p></details>" +
-    (sd.length ? "" : "<p class=\"note\">아직 씨앗 단어가 없어요. 브랜드 탭에서 넣으세요.</p>") + seedPendingHtml() + dsLine("word") + "</section>" + kwRecBarHtml();   // 찾는 나라 (content-basekw.js)
+  var help = "<details class=\"help\"><summary>씨앗 단어 · 기준</summary><p class=\"lead\">브랜드 정체성 단어와 상품 판매 단어마다 받은 연관 검색어예요. 쓸 검색어에 ★을 누르면 「검증한 키워드」가 되고, 다음 단계(조사·추천·대본)는 ★한 것 위주로 가요. 씨앗 단어는 브랜드 탭에서 고쳐요.</p>" + dsLine("word") + dsLine("kw") + "</details>";
+  var h = sd.length ? "" : "<section class=\"card\"><p class=\"note\">아직 씨앗 단어가 없어요. <button class=\"btn sm\" data-go=\"brand\">브랜드 탭에서 넣기 →</button></p></section>";
   var pickW = ui.seed && sd.some(function(x){ return x.word === ui.seed }) ? ui.seed : (sd[0] || {}).word;
   if(pickW){
     var all0 = seedItems(pickW), tab0 = ui.sTab || "naver", more = ui.seedMore || 15;
@@ -556,15 +555,14 @@ function seedsHtml(){
     var near = inT.filter(function(x){ return kc.far === "mix" || !isFar(x, pickW) }), far = kc.far === "fold" ? inT.filter(function(x){ return isFar(x, pickW) }) : [];
     h += "<section class=\"card\" id=\"seed-list\"><div class=\"card-h\"><h3>「" + esc(pickW) + "」 연관 검색어</h3><span class=\"n\">" + all0.length + "개</span></div><div class=\"chips\">" +
       sd.map(function(x){ return "<button class=\"chip" + (x.word === pickW ? " on" : "") + "\" data-ui=\"seed=" + esc(x.word) + "\"><i class=\"dot " + (x.kind === "상품" ? "p" : "i") + "\"></i>" + esc(x.word) + "<span>" + seedItems(x.word).filter(function(y){ return kwShown(y, x.word) }).length + "</span></button>" }).join("") + "</div>" +
-      srcTabsHtml("sTab", all0.filter(function(y){ return kwShown(y, pickW) }), pickW) +
-      "<div style=\"margin-top:6px\">" + dsLine("kw") + "</div>" + kwRecSeedHtml(pickW) +
-      (tab0 !== "naver" && seedSrc() === "naver" ? "<p class=\"note\" style=\"margin-top:8px\">지금은 네이버에서만 받아요. 구글 트렌드도 보려면 브랜드 탭 「연관 검색어 받는 곳」을 「둘 다」로 바꾸세요.</p>" : "") +
+      seedPendingHtml() + srcTabsHtml("sTab", all0.filter(function(y){ return kwShown(y, pickW) }), pickW) + help + kwRecSeedHtml(pickW) +
+      (tab0 !== "naver" && seedSrc() === "naver" ? "<p class=\"note\" style=\"margin-top:8px\">지금은 네이버에서만 받아요. 구글 트렌드도 보려면 설계 탭 「1 단어」에서 「둘 다」로 바꾸세요.</p>" : "") +
       "<div class=\"list\" style=\"margin-top:6px\">" + (near.slice(0, more).map(function(x){ return kwRow(x, s, true) }).join("") || "<p class=\"empty\">" + (tab0 === "both" ? "네이버와 구글 둘 다에서 나온 말이 아직 없어요." : "이 칸에 나온 연관 검색어가 없어요.") + "</p>") + "</div>" +
       (near.length > more ? "<div class=\"acts\"><button class=\"btn sm\" data-ui=\"seedMore=" + (more + 25) + "\">더 보기 (" + (near.length - more) + "개 남음)</button></div>" : "") +
       (far.length ? "<details style=\"margin-top:12px\"><summary>「" + esc(pickW) + "」 글자가 안 든 말 " + far.length + "개 — 네이버·구글이 같이 찾은 관련 검색어</summary><div class=\"list\" style=\"margin-top:6px\">" +
         far.map(function(x){ return kwRow(x, s, true) }).join("") + "</div></details>" : "") + "</section>";
   }
-  return h;
+  return h + kwRecBarHtml();
 }
 /* 네이버 · 구글 트렌드 · 둘 다(겹침) 칸 (2026-11-17 동욱: "구글 트렌드와 네이버 둘 다 검색하는 게 따로 보이고, 중복해서 트렌드인 걸 3탭으로").
    via = 그 말을 낸 곳 — 맥이 씨앗마다(키워드.json via{씨앗: [...]}) · 단어 후보마다(단어 후보.json via [...]) 적는다. 예전 자료는 src · gTop 으로 짐작한다 */
@@ -928,7 +926,7 @@ function anaTargets(words){
 function anaOptHtml(){
   var o = anaOpt();
   function tg(k, label){ return "<button class=\"chip" + (o[k] ? " on" : "") + "\" data-act=\"anaopt\" data-k=\"" + k + "\">" + label + "</button>" }
-  return "<p class=\"it-d\">맥의 Claude가 영상을 열어 읽어요. 켠 것만 읽고, 카드 「자세히」에도 켠 것만 보여요.</p>" +
+  return "<p class=\"it-d\">맥의 Claude가 영상을 열어 읽어요. 켠 것만 읽고, 카드 「자세히」에도 켠 것만 보여요. 댓글 수를 늘리면 다음에 분석하는 영상부터 그만큼 읽어요 — 이미 분석한 영상은 그때 받은 만큼만 보여요.</p>" +
     "<div class=\"chips\">" + ANA_PARTS.map(function(p){ return tg(p[0], p[1]) }).join("") + "</div>" +
     "<div class=\"chips\" style=\"margin-top:6px\"><span class=\"lead\" style=\"margin:0 4px 0 0\">댓글</span>" + [5, 10, 20].map(function(n){ return "<button class=\"chip" + (o.nCmt === n ? " on" : "") + "\" data-act=\"anaopt\" data-k=\"nCmt\" data-v=\"" + n + "\">" + n + "개</button>" }).join("") + "</div>" +
     "<div class=\"chips\" style=\"margin-top:6px\"><span class=\"lead\" style=\"margin:0 4px 0 0\">분석할 영상</span>" + [1, 3, 5].map(function(n){ return "<button class=\"chip" + (o.target === "top" && o.topN === n ? " on" : "") + "\" data-act=\"anaopt\" data-k=\"topN\" data-v=\"" + n + "\">키워드마다 점수 상위 " + n + "개</button>" }).join("") +
@@ -2291,7 +2289,6 @@ function viewBrand(){
     (b.cadence ? "<dt>발행</dt><dd>" + esc(b.cadence.note || "") + "</dd>" : "") + "</dl>" +
     (b.todo ? "<p class=\"note\" style=\"margin-top:12px\">" + esc(b.todo) + "</p>" : "") + "</section>";
   h += wordFindHtml() + (part("kw") ? "<section class=\"card\">" + kwPullHtml() + "</section>" : "");   // 단어 후보 찾기 · 키워드에서 가져오기 — 정체성·판매 단어를 고르는 곳이라 브랜드 탭에 (2026-11-17 동욱 "이건 브랜드에 넣어서 진행해야지")
-  h += "<section class=\"card\">" + dsLine("word") + seedPendingHtml() + "</section>";   // 받는 곳은 설계 탭에서
   h += "<section class=\"card\"><div class=\"card-h\"><h3><span class=\"tag p\">상품</span> 판매 상품과 판매 단어</h3><span class=\"n\">" + (b.products || []).length + "개</span></div>" +
     "<p class=\"lead\">상품 자체도 ✎로 고치고 ✕로 빼고 아래에서 더해요. 상품마다 사려는 사람이 찾을 판매 단어를 넣고 빼세요 (상품마다 " + SEED_MAX + "개까지) — 이 단어가 들어간 연관 검색어가 상품 파는 영상의 재료가 돼요.</p>" +
     wordRecBarHtml() + productsHtml() + "</section>";
@@ -2568,7 +2565,7 @@ render();
         "  · 브랜드 기획·레퍼런스 카드: 브랜드.json 의 refCards · planCard 가 가리키는 볼트 카드\n" +
         "- 무엇을 근거로 답했는지(어느 파일·어느 칸) 한 줄 붙인다. 숫자·사례는 볼트에 있는 것만 쓴다.\n" +
         "- 동욱이 이 앱 일(추천·대본·키워드·참고 페이지 등)을 시키면, 맥에서 답하는 중이면 그 스킬 규칙대로 바로 해서 볼트 파일에 쓰고(맥 동기화가 앱에 올린다) 무엇을 어디에 했는지 말한다. 클라우드에서 답하는 중이면 할 수 없다고 말하고, 「⚙ Claude 모드」에서 대화를 「맥에서」로 두면 된다고 알려 준다.\n" +
-        "- 답에는 추천 번호(P1·K1)·파일 속 약어 대신 제목과 쉬운 말을 쓴다. 숏폼은 하지 않기로 했다(미드폼·롱폼만, 11-16) — 옛 자료에 숏폼이 있어도 권하지 않는다.\n" +
+        "- 답에는 추천 번호(P1·K1)·파일 속 약어·코드 칸 이름(anaOpt · kwCrit 등) 대신 제목과 화면에 보이는 이름(예: 설계 「3 콘텐츠」 칸)을 쓴다. 숏폼은 하지 않기로 했다(미드폼·롱폼만, 11-16) — 옛 자료에 숏폼이 있어도 권하지 않는다.\n" +
         "- 「[설계] …」로 온 말은 설계 바꾸기 부탁이다: [지금 앱 상태]의 지금 설계를 읽고 set_design 도구로 바꾼 뒤, 무엇을 어떻게 바꿨는지(전 → 후) 한 줄씩 말한다. 그 칸에 없는 말이면 바꾸지 말고 되묻는다.\n" +
         "- 「보여 줘·제안해 줘」는 보여 주기까지. 쓰기는 「넣어·해·반영해」를 들은 뒤.";
     },
