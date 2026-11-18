@@ -51,8 +51,8 @@ header>.brand{padding-right:min(46vw,190px)}
 <body>
 <span id="rtdot" aria-hidden="true"></span>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script>window.BRAINY_VERSION = "eddb92f782"; window.BRAINY_APP = {key: "content", name: "콘텐츠 기획", icon: "ct-icon-192.png", sub: "키워드와 트렌드로 주제를 고르고 대본 초안까지", colls: ["ct.data", "ct.set", "cmd", "bchat"]};</script>
-<script src="shim.js?v=eddb92f782"></script>
+<script>window.BRAINY_VERSION = "a91b034274"; window.BRAINY_APP = {key: "content", name: "콘텐츠 기획", icon: "ct-icon-192.png", sub: "키워드와 트렌드로 주제를 고르고 대본 초안까지", colls: ["ct.data", "ct.set", "cmd", "bchat"]};</script>
+<script src="shim.js?v=a91b034274"></script>
 <script>document.addEventListener("click", function (e) { var b = e.target.closest && e.target.closest("[data-brainy=out]"); if (b && confirm("로그아웃할까요?")) window.BRAINY.signOut(); });</script>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="apple-mobile-web-app-title" content="콘텐츠 기획">
@@ -2653,7 +2653,16 @@ render();
       db.doc(PATH).onSnapshot(function (snap) {
         if (!snap.exists) { if (turns.length || past.length) keep(); return; }
         var d = snap.data() || {};
-        if ((d.at || 0) > stamp && !busy) { turns = d.cur || []; past = d.past || []; stamp = d.at; try { localStorage.setItem(KEY, JSON.stringify(turns)); localStorage.setItem(KEY + ".past", JSON.stringify(past)); localStorage.setItem(KEY + ".at", String(stamp)); } catch (e) {} if (!box.hidden) render(); }
+        if ((d.at || 0) > stamp && !busy) {   // 다른 기기가 더 새로 썼다 — 덮지 않고 합친다: 지난 대화는 모두 모으고, 이 기기의 지금 대화가 다르면 지난 대화로 옮긴다
+          var sig = function (list) { return JSON.stringify(clean(list || [])); };
+          var mine = clean(turns), theirs = d.cur || [];
+          var all = (d.past || []).concat(past), seen = {}; past = all.filter(function (p) { var k = p.at + "|" + p.title; if (seen[k]) return false; seen[k] = 1; return true; }).sort(function (a, b) { return b.at - a.at; });
+          if (mine.some(function (t) { return t.role === "user"; }) && sig(mine) !== sig(theirs) && !past.some(function (p) { return sig(p.turns) === sig(mine); })) { var f = mine.filter(function (t) { return t.role === "user"; })[0].content; past.unshift({ at: stamp || Date.now(), title: String(f).slice(0, 40), turns: mine }); }
+          past = past.slice(0, 20); turns = theirs; stamp = d.at;
+          try { localStorage.setItem(KEY, JSON.stringify(turns)); localStorage.setItem(KEY + ".past", JSON.stringify(past)); localStorage.setItem(KEY + ".at", String(stamp)); } catch (e) {}
+          if (JSON.stringify(past) !== JSON.stringify(d.past || [])) keep();   // 합친 지난 대화를 저장소에도
+          if (!box.hidden) render();
+        }
       });
     }, function () {});
   }
