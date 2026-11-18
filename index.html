@@ -51,8 +51,8 @@ header>.brand{padding-right:min(46vw,190px)}
 <body>
 <span id="rtdot" aria-hidden="true"></span>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script>window.BRAINY_VERSION = "5db13a6815"; window.BRAINY_APP = {key: "content", name: "콘텐츠 기획", icon: "ct-icon-192.png", sub: "키워드와 트렌드로 주제를 고르고 대본 초안까지", colls: ["ct.data", "ct.set", "cmd", "bchat"]};</script>
-<script src="shim.js?v=5db13a6815"></script>
+<script>window.BRAINY_VERSION = "ad4c466009"; window.BRAINY_APP = {key: "content", name: "콘텐츠 기획", icon: "ct-icon-192.png", sub: "키워드와 트렌드로 주제를 고르고 대본 초안까지", colls: ["ct.data", "ct.set", "cmd", "bchat"]};</script>
+<script src="shim.js?v=ad4c466009"></script>
 <script>document.addEventListener("click", function (e) { var b = e.target.closest && e.target.closest("[data-brainy=out]"); if (b && confirm("로그아웃할까요?")) window.BRAINY.signOut(); });</script>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="apple-mobile-web-app-title" content="콘텐츠 기획">
@@ -100,6 +100,9 @@ nav button{flex:1 0 auto;text-align:center;padding:8px 11px;border-radius:10px;c
 #toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);opacity:0;pointer-events:none;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;font-weight:600;max-width:calc(100vw - 32px);transition:.2s;z-index:50}#toast.on{opacity:1;transform:translate(-50%,0)}
 html{scrollbar-gutter:stable}   /* 짧은 탭에서 스크롤바가 사라져 폭이 15px 바뀌던 것 */
 details.help{margin:2px 0 6px}details.help>summary{font-size:13px;font-weight:600}
+.pastbar{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin:0 0 12px;padding:10px 12px;border-radius:12px;background:#FFF4D6;color:#5a4300;border:1px solid #F0D27A;font-size:14px}.pastbar .mk{width:34px;height:34px}
+.hday{margin:12px 0 2px;font-size:13px;font-weight:700;color:var(--muted)}.list .it.on{outline:2px solid var(--accent);outline-offset:-2px}
+.mk.imp[aria-pressed=true]{background:#6B4FD8;border-color:#6B4FD8;color:#fff}
 .runs{margin:0 0 14px}.runs>summary{padding:8px 4px}
 details>summary{text-align:left;overflow-wrap:anywhere;word-break:keep-all}
 @media (max-width:560px){input,textarea,select{font-size:16px!important}}   /* 아이폰에서 누르면 화면이 확대되던 것 (16px 미만) */
@@ -306,10 +309,11 @@ var TABS = [
   { name: "키워드", subs: [["kw", "씨앗별 검색어"], ["kwall", "전체 키워드"]] },
   { name: "콘텐츠", subs: [["ref", "콘텐츠"], ["rec", "추천"]] },
   { name: "대본", subs: [["build", "구축"], ["refpage", "참고 페이지"], ["script", "대본"]] },
-  { name: "설계", subs: [["design", "단계별 기준"], ["tpl", "템플릿"], ["claude", "Claude 모드"]] }
+  { name: "설계", subs: [["design", "단계별 기준"], ["tpl", "템플릿"], ["claude", "Claude 모드"]] },
+  { name: "기록", subs: [["hist", "🕘 돌린 기록"], ["imp", "🔖 중요"]] }   // 지난 결과 다시 보기 · 기간 상관없이 중요한 것 (content-hist.js)
 ];
 function tabGroup(id){ return TABS.filter(function(g){ return g.subs.some(function(x){ return x[0] === id }) })[0] || TABS[0] }
-var PARTS = { cmts: ".cmts", kwrec: ".kwrec", wordrec: ".wordrec", auto: ".auto", wordcand: ".wordcand", analysis: ".analysis", ideas: ".ideas", search: ".search", chancand: ".chancand", kw: ".kw", trend: ".trend", ref: ".ref", live: ".live", chan: ".chan", rec: ".rec", build: ".build", script: ".script", source: ".source", log: ".log" };
+var PARTS = { cmts: ".cmts", kwrec: ".kwrec", wordrec: ".wordrec", auto: ".auto", wordcand: ".wordcand", analysis: ".analysis", ideas: ".ideas", search: ".search", chancand: ".chancand", kw: ".kw", trend: ".trend", ref: ".ref", live: ".live", chan: ".chan", rec: ".rec", build: ".build", script: ".script", source: ".source", log: ".log", hist: ".hist" };
 
 function load(k, d){ try{ var v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v }catch(e){ return d } }
 function save(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)) }catch(e){} }
@@ -336,7 +340,7 @@ function B(){   // 브랜드 정본(ct.data) + 앱에서 고친 브랜드 정보
   var r = RAW[cur] || null, pf = (SETS[cur] || {}).profile;
   return r && pf ? Object.assign({}, r, pf, { identity: Object.assign({}, r.identity || {}, pf.identity || {}) }) : r;
 }
-function part(name){ return RAW[cur + PARTS[name]] || null }
+function part(name){ return pastPart(name) || RAW[cur + PARTS[name]] || null }   // 🕘 과거 기록을 보는 중이면 그 단계만 그때 결과
 /* 쇼츠는 안 한다 (2026-11-16 동욱 "쇼츠는 하지 말고 다 미드폼 롱폼 기준으로" · 11-17 "쇼츠 우선 제외") —
    지난 회차의 숏폼 레퍼런스·추천은 시트·데이터 파일에 그대로 두고 앱에서만 뺀다 */
 function isLong(x){ return x.form !== "숏폼" }
@@ -692,6 +696,7 @@ function kwRow(x, s, mark){
     "<div class=\"it-d\">" + (x.buy ? "<span class=\"tag ok\">" + esc(x.intent) + "</span>" : esc(x.intent || "")) + "</div>" + (ui.kwSeed === x.kw ? seedPickHtml(x.kw) : "") + "</div>" +
     (mark ? "<button class=\"mk\" data-act=\"kwseed\" data-kw=\"" + esc(x.kw) + "\" aria-expanded=\"" + (ui.kwSeed === x.kw) + "\" title=\"씨앗 단어로 넣기 — 정체성 축이나 상품에\" aria-label=\"씨앗 단어로 넣기\">＋</button>" +
             "<button class=\"mk\" data-pin=\"" + esc(x.kw) + "\" aria-pressed=\"" + !!s.pin[x.kw] + "\" title=\"즐겨찾기 — 브랜드가 기억하고 콘텐츠 검색에 씀\" aria-label=\"즐겨찾기\">★</button>" +
+            impBtn("kw", x.kw, x.kw, "월 " + fmt(x.total)) +
             "<button class=\"mk no\" data-ex=\"" + esc(x.kw) + "\" aria-pressed=\"" + !!s.ex[x.kw] + "\" title=\"후보에서 빼기\" aria-label=\"후보에서 빼기\">✕</button>" : "") + "</div>";
 }
 function viewKw(){
@@ -785,7 +790,7 @@ function refScore(x){
 function refCard(x){
   var bd = band(x.ratio), g = growth(x), proof = isProof(x), o = outlier(x), dv = daily(x);
   return "<div class=\"ref\">" + (x.vid ? "<a href=\"" + esc(x.url) + "\" target=\"_blank\" rel=\"noopener\"><img loading=\"lazy\" alt=\"\" src=\"https://i.ytimg.com/vi/" + esc(x.vid) + "/mqdefault.jpg\"></a>" : "") +
-    "<div class=\"ref-m\"><div class=\"ref-t\"><a class=\"t\" href=\"" + esc(x.url) + "\" target=\"_blank\" rel=\"noopener\">" + txt(x.title) + "</a>" + (x.vid ? favBtn(x.vid) : "") + "</div>" +
+    "<div class=\"ref-m\"><div class=\"ref-t\"><a class=\"t\" href=\"" + esc(x.url) + "\" target=\"_blank\" rel=\"noopener\">" + txt(x.title) + "</a>" + (x.vid ? favBtn(x.vid) + impBtn("vid", x.vid, x.title, x.channel, x.url) : "") + "</div>" +
     "<div class=\"it-d\">" + esc(x.channel) + " · 구독 " + esc(x.subs || "—") + " · 조회 " + (g ? fmt(g.now) + (g.pct > 0 ? " <span class=\"up\">(+" + g.pct + "%)</span>" : "") : esc(x.views || "—")) + " · " + esc(x.len) + " · " + esc(x.published) + "</div>" +
     "<div><span class=\"tag fill\">" + esc(roleKo(x.role)) + "</span> " + stageTag(x) + " <span class=\"tag\" style=\"border-color:var(--accent);color:var(--accent)\">점수 " + refScore(x) + "</span> <span class=\"tag p\">" + esc(x.product) + "</span> <span class=\"tag\">" + esc(x.form) + "</span> " +
     "<span class=\"tag " + bd[1] + "\">" + (x.ratio != null ? "조회÷구독 " + x.ratio + "배 · " : "") + bd[0] + "</span> " +
@@ -955,7 +960,7 @@ function secs(t){ return String(t).split(":").reduce(function(a, v){ return a * 
 function searchCard(x, words){
   var url = "https://www.youtube.com/watch?v=" + x.vid, bd = band(x.ratio), hits = topicHits(x, words), n = cmtN(x);
   return "<div class=\"ref\"><a href=\"" + url + "\" target=\"_blank\" rel=\"noopener\"><img loading=\"lazy\" alt=\"\" src=\"https://i.ytimg.com/vi/" + esc(x.vid) + "/mqdefault.jpg\"></a>" +
-    "<div class=\"ref-m\"><div class=\"ref-t\"><a class=\"t\" href=\"" + url + "\" target=\"_blank\" rel=\"noopener\">" + txt(x.title) + "</a>" + favBtn(x.vid) + "</div>" +
+    "<div class=\"ref-m\"><div class=\"ref-t\"><a class=\"t\" href=\"" + url + "\" target=\"_blank\" rel=\"noopener\">" + txt(x.title) + "</a>" + favBtn(x.vid) + impBtn("vid", x.vid, x.title, x.channel, url) + "</div>" +
     "<div class=\"it-d\">" + esc(x.channel) + " · 조회 " + fmt(x.views) + " · " + esc(x.date) + "</div>" +
     (anaOpt().topic && anaOf(x.vid) && anaOf(x.vid).topic ? "<div class=\"small\"><b>주제</b> " + esc(anaOf(x.vid).topic) + "</div>" : "") +
     "<div><span class=\"tag\" style=\"border-color:var(--accent);color:var(--accent)\">점수 " + srScore(x, words) + "</span> " + (anaOpt().fit ? fitTag(x) : "") +
@@ -1008,7 +1013,7 @@ function favListHtml(){
   if(!ids.length) return "<section class=\"card\"><p class=\"empty\">아직 즐겨찾기 한 콘텐츠가 없어요. 콘텐츠 옆 ☆를 누르세요.</p></section>";
   return "<section class=\"card\"><div class=\"card-h\"><h3>☆ 즐겨찾기 콘텐츠</h3><span class=\"n\">" + ids.length + "개</span></div><div class=\"list\">" + ids.map(function(vid){ var x = f[vid];
     return "<div class=\"ref\"><a href=\"https://www.youtube.com/watch?v=" + esc(vid) + "\" target=\"_blank\" rel=\"noopener\"><img loading=\"lazy\" alt=\"\" src=\"https://i.ytimg.com/vi/" + esc(vid) + "/mqdefault.jpg\"></a>" +
-      "<div class=\"ref-m\"><div class=\"ref-t\"><a class=\"t\" href=\"https://www.youtube.com/watch?v=" + esc(vid) + "\" target=\"_blank\" rel=\"noopener\">" + esc(x.title || vid) + "</a>" + favBtn(vid) + "</div>" +
+      "<div class=\"ref-m\"><div class=\"ref-t\"><a class=\"t\" href=\"https://www.youtube.com/watch?v=" + esc(vid) + "\" target=\"_blank\" rel=\"noopener\">" + esc(x.title || vid) + "</a>" + favBtn(vid) + impBtn("vid", vid, x.title || vid, x.channel, "https://www.youtube.com/watch?v=" + vid) + "</div>" +
       "<div class=\"it-d\">" + esc(x.channel || "") + (x.kw ? " · 키워드 " + esc(x.kw) : "") + " · " + esc(day(x.at)) + "</div></div></div>" }).join("") + "</div></section>";
 }
 
@@ -1126,7 +1131,7 @@ function orderText(rd){
 }
 function topicCell(x, s){
   var sc = scriptOf(x.id);
-  return "<div class=\"o-top\"><span class=\"num muted\">" + esc(recNo(x.id)) + "</span> " + stageTag(x) + "<button class=\"mk\" data-pick=\"" + esc(x.id) + "\" aria-pressed=\"" + !!s.pick[x.id] + "\" title=\"대본 만들 추천으로 고르기\" aria-label=\"대본 만들 추천으로 고르기\">＋</button>" + delBtn("rec", x.id, recNo(x.id) + " " + x.title) + "</div>" +
+  return "<div class=\"o-top\"><span class=\"num muted\">" + esc(recNo(x.id)) + "</span> " + stageTag(x) + "<button class=\"mk\" data-pick=\"" + esc(x.id) + "\" aria-pressed=\"" + !!s.pick[x.id] + "\" title=\"대본 만들 추천으로 고르기\" aria-label=\"대본 만들 추천으로 고르기\">＋</button>" + delBtn("rec", x.id, recNo(x.id) + " " + x.title) + impBtn("rec", x.title, x.title, recNo(x.id) + (x.date ? " · " + x.date : "")) + "</div>" +
     (function(f){ return "<div class=\"small\" style=\"margin:2px 0 4px\"><span class=\"tag" + (f.k === "fav" ? " ok" : "") + "\">" + esc(f.t) + "</span>" + (f.ref ? " <span class=\"muted\">「" + esc(f.ref) + "」</span>" : "") + "</div>" })(recFrom(x)) +
     "<b>" + ([x.product, x.format].filter(Boolean).length ? "[" + [x.product, x.format].filter(Boolean).map(esc).join(" · ") + "] " : "") + txt(x.title) + "</b>" +
     (x.structure ? "<div class=\"apply\">" + txt(x.structure) + "</div>" : "") +
@@ -1201,7 +1206,7 @@ function viewScript(){
   if(!live.length) h += "<p class=\"empty\">대본을 모두 지웠어요. 아래 「지운 것」에서 되돌릴 수 있어요.</p>";
   sc.items.forEach(function(x, i){
     if(isGone("script", sid(x))) return;
-    h += "<section class=\"card\"><div class=\"card-h\"><h3>" + txt(x.title) + "</h3><span class=\"n\">" + esc(recNo(x.rec || "")) + " · " + esc(x.status || "") + "</span></div>" +
+    h += "<section class=\"card\"><div class=\"card-h\"><h3>" + txt(x.title) + "</h3><span class=\"n\">" + esc(recNo(x.rec || "")) + " · " + esc(x.status || "") + " " + impBtn("script", x.title, x.title, recNo(x.rec || "")) + "</span></div>" +
       (x.meta ? "<p class=\"lead\">" + md(x.meta) + "</p>" : "") +
       (x.summary ? "<h4>스크립트 요약</h4><div class=\"pre\">" + md(x.summary) + "</div>" : "") +
       (x.shoot ? "<details><summary>촬영 요약</summary><div class=\"pre\" style=\"margin-top:6px\">" + md(x.shoot) + "</div></details>" : "") +
@@ -1964,6 +1969,124 @@ var DS_SCHEMA = [
   "값을 null 로 주면 그 칸은 기본값으로 돌아간다"
 ].join("\n");
 
+/* ── 기록 탭 — 🕘 돌린 기록 · 🔖 중요 ──
+   2026-11-18 동욱: "키워드 콘텐츠 등 내가 돌렸던 부분들을 과거 기록을 돌려서 확인할 수 있게 · 필요한 기록들은 즐겨찾기 ·
+   다음 단계를 돌리기 위한 즐겨찾기(★·☆) 말고도 과거의 모든 기록 통틀어 내게 중요한 즐겨찾기를 새로 만드는 구조".
+   - 돌린 기록 목록 = 맥(content_app.py _hist)이 단계를 돌릴 때마다 남기는 `<브랜드>/돌린 기록.json` → part("hist").
+     본문은 ct.hist/<브랜드>.<id> 문서 — 열 때만 받는다(BRAINY.fetch). 단계마다 최근 20개 + 🔖 한 것만 클라우드에, 볼트 사본은 다.
+   - 🔖 중요 = ct.set imp [{kind, key, label, sub, url, at, from:{id, at, label}, memo}] — kind: run(돌린 기록 하나) · kw · vid · rec · script.
+     ★·☆(다음 단계에 쓰는 표시)와 따로다 — 🔖 는 다음 단계에 쓰이지 않고 내가 모아 두기만 한다. 맥은 kind run 인 것의 본문을 지우지 않는다.
+   - 과거 기록 열기 = PAST 에 그 본문을 두고 part() 가 그 단계만 그 본문을 돌려준다 → 평소 화면 그대로 그때 결과가 보인다(맨 위 띠로 알림). */
+var HIST_GROUPS = [["all", "전체"], ["kw", "키워드", ["kw", "trend", "wordcand", "kwrec"]], ["ct", "콘텐츠", ["search", "analysis", "cmts", "ref", "chancand"]],
+  ["rec", "추천", ["rec"]], ["sc", "대본", ["build", "source", "script"]], ["imp", "🔖 한 것"]];
+var HIST_TAB = { kw: "kwall", trend: "kw", wordcand: "brand", kwrec: "kw", search: "ref", analysis: "ref", cmts: "rec", ref: "ref", chancand: "refpage", rec: "rec", build: "build", source: "script", script: "script" };   // 그 기록을 어느 탭에서 보나
+var IMP_KINDS = [["run", "돌린 기록"], ["kw", "키워드"], ["vid", "영상"], ["rec", "추천"], ["script", "대본"]];
+var PAST = null;   // {brand, id, part, label, at, data} — 과거 기록을 보는 중
+var HCACHE = {};
+
+function hAt(at){ var d = new Date(at); return isNaN(d) ? String(at || "") : (d.getMonth() + 1) + "/" + d.getDate() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2) }
+function histItems(){ var h = part("hist"); return (h && h.items) || [] }
+function pastPart(name){ return PAST && PAST.brand === cur && PAST.part === name ? PAST.data : null }
+function impList(){ return (SETS[cur] || {}).imp || [] }
+function impOf(kind, key){ return impList().filter(function(x){ return x.kind === kind && x.key === key })[0] }
+/* 🔖 버튼 — 어느 목록에 붙여도 같은 모양 */
+function impBtn(kind, key, label, sub, url){
+  var on = !!impOf(kind, key);
+  return "<button class=\"mk imp\" data-act=\"imp\" data-kind=\"" + kind + "\" data-key=\"" + esc(key) + "\" data-label=\"" + esc(label || key) + "\" data-sub=\"" + esc(sub || "") + "\" data-url=\"" + esc(url || "") + "\" aria-pressed=\"" + on + "\" title=\"" + (on ? "🔖 중요에서 빼기" : "🔖 중요에 모아 두기 — 기록 탭에서 언제든 다시 봄") + "\" aria-label=\"중요\">🔖</button>";
+}
+function impToggle(el){
+  var d = el.dataset, list = impList().slice(), i = -1;
+  list.forEach(function(x, j){ if(x.kind === d.kind && x.key === d.key) i = j });
+  if(i >= 0){ list.splice(i, 1); toast("🔖 중요에서 뺐어요") }
+  else { list.unshift({ kind: d.kind, key: d.key, label: d.label, sub: d.sub || "", url: d.url || "", at: new Date().toISOString(),
+    from: PAST && PAST.brand === cur ? { id: PAST.id, at: PAST.at, label: PAST.label } : null }); toast("🔖 중요에 모았어요 — 「기록 › 🔖 중요」에서 봐요") }
+  setS({ imp: list });
+}
+/* 과거 기록 열기 — 본문을 받아 그 단계 탭을 그때 결과로 */
+function histOpen(id){
+  var x = histItems().filter(function(y){ return y.id === id })[0];
+  if(!x){ toast("그 기록이 목록에 없어요"); return }
+  function show(data){ PAST = { brand: cur, id: x.id, part: x.part, label: x.label, at: x.at, data: data }; tab = HIST_TAB[x.part] || "sum"; save("ct.tab", tab); window.scrollTo(0, 0); render() }
+  if(HCACHE[cur + "." + id]) return show(HCACHE[cur + "." + id]);
+  if(!x.cloud && !impOf("run", id)){ toast("오래된 기록이라 볼트에만 있어요 — 🔖 하면 맥이 30초 안에 다시 올려요"); return }
+  if(!window.BRAINY || !BRAINY.fetch){ toast("이 화면에서는 기록을 받을 수 없어요"); return }
+  ui.histLoading = id; render();
+  BRAINY.fetch("ct.hist/" + cur + "." + id).then(function(data){
+    ui.histLoading = null;
+    if(!data){ toast(x.cloud ? "기록 본문을 못 받았어요 — 잠시 뒤 다시" : "맥이 아직 안 올렸어요 — 30초 뒤 다시 눌러 주세요"); render(); return }
+    HCACHE[cur + "." + id] = data; show(data);
+  }, function(){ ui.histLoading = null; toast("기록을 못 받았어요 — 인터넷을 확인하세요"); render() });
+}
+function histClose(){ var back = PAST ? "hist" : tab; PAST = null; tab = back; save("ct.tab", tab); window.scrollTo(0, 0); render() }
+/* 과거 기록을 보는 동안 모든 탭 맨 위에 붙는 띠 */
+function pastBarHtml(){
+  if(!PAST || PAST.brand !== cur) return "";
+  return "<div class=\"pastbar\" role=\"status\"><span>🕘 <b>" + esc(hAt(PAST.at)) + " 「" + esc(PAST.label) + "」</b> 기록을 보는 중 — 이 단계만 그때 결과예요</span>" +
+    "<span class=\"acts\" style=\"margin:0\">" + impBtn("run", PAST.id, PAST.label, hAt(PAST.at)) + "<button class=\"btn sm primary\" data-act=\"histclose\">지금 자료로 돌아가기</button></span></div>";
+}
+
+function viewHist(){
+  if(!B()) return "<p class=\"empty\">브랜드를 먼저 고르세요.</p>";
+  var all = histItems(), g = ui.histG || "all", grp = HIST_GROUPS.filter(function(x){ return x[0] === g })[0] || HIST_GROUPS[0];
+  var list = all.filter(function(x){ return g === "all" ? true : g === "imp" ? !!impOf("run", x.id) : grp[2].indexOf(x.part) >= 0 });
+  var latest = {}; all.forEach(function(x){ if(!latest[x.part] || x.at > latest[x.part]) latest[x.part] = x.at });
+  var more = ui.histMore || 30;
+  var h = "<section class=\"card\"><div class=\"card-h\"><h3>🕘 돌린 기록</h3><span class=\"n\">" + all.length + "개</span></div>" +
+    "<p class=\"lead\">키워드 받기 · 콘텐츠 검색 · 영상 분석 · 추천 · 대본을 돌릴 때마다 맥이 그 결과를 하나씩 남겨요. 「열어 보기」를 누르면 그 단계 탭이 그때 결과로 보이고, 맨 위 띠의 「지금 자료로 돌아가기」로 돌아와요. 🔖 하면 「🔖 중요」에 모여요.</p>" +
+    "<div class=\"chips\">" + HIST_GROUPS.map(function(x){ var n = x[0] === "all" ? all.length : x[0] === "imp" ? all.filter(function(y){ return impOf("run", y.id) }).length : all.filter(function(y){ return x[2].indexOf(y.part) >= 0 }).length;
+      return "<button class=\"chip" + (x[0] === g ? " on" : "") + "\" data-ui=\"histG=" + x[0] + "\">" + x[1] + " <span>" + n + "</span></button>" }).join("") + "</div>";
+  if(!all.length) return h + "<p class=\"empty\">아직 기록이 없어요. 맥 동기화가 켜져 있으면 처음 한 번 지난 하루 사본으로 채우고, 그다음부터는 돌릴 때마다 남아요.</p></section>";
+  if(!list.length) return h + "<p class=\"empty\">" + (g === "imp" ? "아직 🔖 한 기록이 없어요." : "이 단계는 아직 기록이 없어요.") + "</p></section>";
+  var day = "";
+  h += "<div class=\"list\">" + list.slice(0, more).map(function(x){
+    var d = hAt(x.at).split(" ")[0], head = d !== day ? "<div class=\"hday\">" + esc(d) + "</div>" : ""; day = d;
+    var now = latest[x.part] === x.at, viewing = PAST && PAST.id === x.id, off = !x.cloud && !impOf("run", x.id);
+    return head + "<div class=\"it" + (viewing ? " on" : "") + "\"><span class=\"num muted\">" + esc(hAt(x.at).split(" ")[1] || "") + "</span><div class=\"it-m\"><div class=\"it-h\"><b>" + esc(x.label) + "</b>" + (now ? " <span class=\"tag ok\">지금 자료</span>" : "") + (viewing ? " <span class=\"tag p\">보는 중</span>" : "") + "</div>" +
+      "<div class=\"it-d\">" + esc(x.sum || "") + (off ? " · <span class=\"muted\">볼트에만 — 🔖 하면 다시 올라와요</span>" : "") + "</div></div>" +
+      impBtn("run", x.id, x.label, hAt(x.at)) +
+      "<button class=\"btn sm\" data-act=\"histopen\" data-id=\"" + esc(x.id) + "\"" + (off || ui.histLoading === x.id ? " disabled" : "") + ">" + (ui.histLoading === x.id ? "받는 중…" : "열어 보기") + "</button></div>" }).join("") + "</div>" +
+    (list.length > more ? "<div class=\"acts\"><button class=\"btn sm\" data-ui=\"histMore=" + (more + 30) + "\">더 보기 (" + (list.length - more) + "개)</button></div>" : "") + "</section>";
+  return h;
+}
+
+function viewImp(){
+  if(!B()) return "<p class=\"empty\">브랜드를 먼저 고르세요.</p>";
+  var list = impList(), q = String(ui.impQ || "").trim();
+  var h = "<section class=\"card\"><div class=\"card-h\"><h3>🔖 중요</h3><span class=\"n\">" + list.length + "개</span></div>" +
+    "<p class=\"lead\">기간에 상관없이 내게 중요한 것을 모아 두는 곳이에요. 돌린 기록 · 키워드 · 영상 · 추천 · 대본 어디서든 🔖 를 누르면 여기 와요. ★·☆ 즐겨찾기는 다음 단계(콘텐츠 검색 · 추천)에 쓰이는 표시이고, 🔖 는 다음 단계에 쓰이지 않고 모아 두기만 해요.</p>" +
+    (list.length > 6 ? "<input type=\"search\" id=\"impq\" placeholder=\"이름 · 메모로 찾기\" value=\"" + esc(q) + "\" style=\"margin-bottom:8px\">" : "");
+  if(!list.length) return h + "<p class=\"empty\">아직 없어요. 「🕘 돌린 기록」이나 키워드 · 영상 · 추천 · 대본 줄의 🔖 를 눌러 보세요.</p></section>";
+  var hit = list.filter(function(x){ return !q || (x.label + " " + (x.sub || "") + " " + (x.memo || "")).indexOf(q) >= 0 });
+  IMP_KINDS.forEach(function(k){
+    var items = hit.filter(function(x){ return x.kind === k[0] });
+    if(!items.length) return;
+    h += "<h4>" + esc(k[1]) + " <span class=\"num muted\">" + items.length + "</span></h4><div class=\"list\">" + items.map(function(x){
+      var open = x.kind === "run" ? "<button class=\"btn sm\" data-act=\"histopen\" data-id=\"" + esc(x.key) + "\">열어 보기</button>"
+        : x.from ? "<button class=\"btn sm\" data-act=\"histopen\" data-id=\"" + esc(x.from.id) + "\" title=\"이 항목을 모은 그때 기록\">그때 기록</button>"
+        : x.url ? "<a class=\"btn sm\" href=\"" + esc(x.url) + "\" target=\"_blank\" rel=\"noopener\">열기</a>" : "";
+      return "<div class=\"it\"><div class=\"it-m\"><div class=\"it-h\"><b>" + esc(x.label) + "</b>" + (x.sub ? " <span class=\"muted\">" + esc(x.sub) + "</span>" : "") + "</div>" +
+        "<div class=\"it-d\">🔖 " + esc(hAt(x.at)) + (x.from ? " · " + esc(hAt(x.from.at)) + " 「" + esc(x.from.label) + "」 기록에서" : "") + "</div>" +
+        (x.memo ? "<div class=\"it-d\">✎ " + esc(x.memo) + "</div>" : "") + "</div>" +
+        open + "<button class=\"mk\" data-act=\"impmemo\" data-kind=\"" + x.kind + "\" data-key=\"" + esc(x.key) + "\" title=\"메모 — 왜 중요한지\" aria-label=\"메모\">✎</button>" +
+        "<button class=\"mk no\" data-act=\"imp\" data-kind=\"" + x.kind + "\" data-key=\"" + esc(x.key) + "\" title=\"🔖 중요에서 빼기\" aria-label=\"빼기\">✕</button></div>" }).join("") + "</div>";
+  });
+  if(!hit.length) h += "<p class=\"empty\">「" + esc(q) + "」 이 들어간 것이 없어요.</p>";
+  return h + "</section>";
+}
+
+function histAct(name, el){
+  if(name === "imp"){ impToggle(el); return true }
+  if(name === "histopen"){ histOpen(el.dataset.id); return true }
+  if(name === "histclose"){ histClose(); return true }
+  if(name === "impmemo"){
+    var list = impList().map(function(x){ return Object.assign({}, x) }), x = list.filter(function(y){ return y.kind === el.dataset.kind && y.key === el.dataset.key })[0];
+    if(!x) return true;
+    var m = prompt("왜 중요한지 한 줄 (비우면 메모 지움)", x.memo || ""); if(m == null) return true;
+    x.memo = m.trim().slice(0, 200); if(!x.memo) delete x.memo; setS({ imp: list }); return true;
+  }
+  return false;
+}
+
 /* ── ✍️ 내 말로 끼어들기 — 어느 탭에서든 내 지시로 워크플로우 중간에 들어가 콘텐츠를 만든다 ──
    2026-11-18 동욱: "키워드·콘텐츠에 없더라도 중간에 내 프롬프트로 어느 부분에서든 그 기반으로 워크플로우에 끼어들어 콘텐츠를 제작할 수 있게, 거의 모든 탭별로".
    탭마다 맨 위에 칸 하나(promptBarHtml) + 구축 문서 · 대본마다 칸(promptBoxHtml).
@@ -2335,14 +2458,14 @@ function render(){
   document.getElementById("nav").innerHTML = TABS.map(function(g, i){ var to = last[g.name] && g.subs.some(function(x){ return x[0] === last[g.name] }) ? last[g.name] : g.subs[0][0];
     return "<button role=\"tab\" class=\"" + (g === grp ? "on" : "") + "\" data-tab=\"" + to + "\"><span>" + (i + 1) + "</span>" + g.name + "</button>" }).join("");
   var sub = grp.subs.length > 1 ? "<div class=\"subnav\" role=\"tablist\">" + grp.subs.map(function(x){ return "<button role=\"tab\" class=\"" + (tab === x[0] ? "on" : "") + "\" data-tab=\"" + x[0] + "\">" + x[1] + "</button>" }).join("") + "</div>" : "";
-  var v0 = { sum: viewSum, brand: viewBrand, kw: viewKw, kwall: viewKw, ref: viewRef, rec: viewRec, build: viewBuild, refpage: viewRefPage, claude: viewClaude, script: viewScript, design: viewDesign, tpl: viewTpl }[tab] || viewSum;
+  var v0 = { sum: viewSum, brand: viewBrand, kw: viewKw, kwall: viewKw, ref: viewRef, rec: viewRec, build: viewBuild, refpage: viewRefPage, claude: viewClaude, script: viewScript, design: viewDesign, tpl: viewTpl, hist: viewHist, imp: viewImp }[tab] || viewSum;
   ui.later = false;
   /* 초점 돌려주기는 앱 화면(#view) 안 칸만 — 구석 Brainy 대화창(#bc-text)에 쓰는 중에 맥 자료가 와서 다시 그리면, 그 칸의 커서를 다시 놓다가 한글 조합이 끊겨 글이 깨졌다 (2026-11-18 동욱: "대화창을 쓰면 글이 깨진다") */
   var act0 = document.activeElement; if(act0 && !document.getElementById("view").contains(act0)) act0 = null;
   var key = act0 && (act0.dataset.addseed != null ? "[data-addseed=\"" + CSS.escape(act0.dataset.addseed) + "\"]" : act0.dataset.pfin != null ? "[data-pfin=\"" + CSS.escape(act0.dataset.pfin) + "\"]" : act0.id ? "#" + act0.id : "");
   var v = function(){ return ({ build: 1, refpage: 1, script: 1 }[tab] && B() ? baseBarHtml() : "") + v0() + ({ brand: 1, kw: 1, rec: 1 }[tab] && B() ? nextHtml() : "") + undoToastHtml() };   // 대본 탭 세 칸 맨 위에 기준 키워드 · 영상 주제   // 브랜드·키워드·추천 탭 맨 아래에도 「다음 할 일」
   var selA = null, selB = null; try{ if(act0 && /^(INPUT|TEXTAREA)$/.test(act0.tagName)){ selA = act0.selectionStart; selB = act0.selectionEnd } }catch(e){}   // 커서 위치도 지킨다 (2026-11-18 검증: 다시 그리면 커서가 맨 앞으로 가서 이어 쓴 글이 앞에 붙음)
-  document.getElementById("view").innerHTML = sub + runHtml(Object.keys(KIND)) + promptBarHtml() + v();   // ✍️ 탭마다 내 말로 끼어들기
+  document.getElementById("view").innerHTML = sub + pastBarHtml() + runHtml(Object.keys(KIND)) + promptBarHtml() + v();   // ✍️ 탭마다 내 말로 끼어들기
   if(key){ var back = document.querySelector(key); if(back){ back.focus({ preventScroll: true }); try{ if(selA != null && back.setSelectionRange) back.setSelectionRange(selA, selB) }catch(e){} } }   // 다시 그려도 쓰던 슬라이더·입력칸에 초점을 돌려준다 (키보드로 이어서 움직이게)
 }
 
@@ -2375,6 +2498,7 @@ document.addEventListener("input", function(e){
   if(e.target.dataset.wordin != null) ui.wDraft = e.target.value;
   if(e.target.dataset.dsask != null) ui.dsDraft = e.target.value;   // 설계 「말로 바꾸기」 · 템플릿 이름 — 다시 그려도 쓰던 글을 지킨다
   if(e.target.dataset.tplin != null) ui.tplDraft = e.target.value;
+  if(e.target.id === "impq"){ ui.impQ = e.target.value; render() }   // 🔖 중요 찾기 — 치는 대로 걸러 보기
   if(e.target.dataset.basekw != null) ui.baseDraft = e.target.value;   // 기준 키워드 넣기 칸
   if(e.target.id === "base-topic") ui.topicDraft = e.target.value;   // 영상 주제 한 줄 — 저장 전 쓰던 글
   if(e.target.dataset.prin != null){ ui.prDraft = Object.assign({}, ui.prDraft); ui.prDraft[e.target.dataset.prin] = e.target.value }   // ✍️ 내 말로 끼어들기 — 쓰던 글 지키기   // 단어 후보 찾기 칸 — 다시 그려도 쓰던 글을 지킨다
@@ -2418,6 +2542,7 @@ document.addEventListener("change", function(e){
 function act(name, el){
   if(claudeAct(name, el)) return;   // ⚙ Claude 모드 (content-claude.js)
   if(designAct(name, el)) return;   // 설계 · 템플릿 (content-design.js)
+  if(histAct(name, el)) return;   // 🕘 돌린 기록 · 🔖 중요 (content-hist.js)
   if(profAct(name, el)) return;   // 브랜드 탭 그 자리 고치기 (content-profile.js)
   if(baseAct(name, el)) return;   // 기준 키워드 · 영상 주제 · 지우기/되돌리기 · 찾는 나라 (content-basekw.js)
   var s = S();
@@ -2588,8 +2713,8 @@ render();
       return L.join("\n");
     },
     tools: [
-      { name: "open_tab", description: "콘텐츠 기획 앱의 탭을 연다: sum(한눈에) · brand(브랜드) · kw(키워드 › 씨앗별 검색어) · kwall(키워드 › 전체 키워드) · ref(콘텐츠) · rec(추천) · build(구축) · refpage(참고 페이지) · script(대본) · design(설계 — 단계별 기준) · tpl(템플릿) · claude(Claude 모드).",
-        inputSchema: { type: "object", properties: { tab: { type: "string", enum: ["sum", "brand", "kw", "kwall", "ref", "rec", "build", "refpage", "script", "design", "tpl", "claude"] } }, required: ["tab"] },
+      { name: "open_tab", description: "콘텐츠 기획 앱의 탭을 연다: sum(한눈에) · brand(브랜드) · kw(키워드 › 씨앗별 검색어) · kwall(키워드 › 전체 키워드) · ref(콘텐츠) · rec(추천) · build(구축) · refpage(참고 페이지) · script(대본) · design(설계 — 단계별 기준) · tpl(템플릿) · claude(Claude 모드) · hist(기록 › 🕘 돌린 기록) · imp(기록 › 🔖 중요).",
+        inputSchema: { type: "object", properties: { tab: { type: "string", enum: ["sum", "brand", "kw", "kwall", "ref", "rec", "build", "refpage", "script", "design", "tpl", "claude", "hist", "imp"] } }, required: ["tab"] },
         execute: function (i) { tab = i.tab; save("ct.tab", tab); window.scrollTo(0, 0); render(); return subName(i.tab); } },
       { name: "set_design", description: "지금 브랜드의 설계(단계별 자동 추천 기준)를 바꾼다. 동욱이 설정을 바꿔 달라고 분명히 말했을 때만. name 은 seedSrc · kwCrit · anaOpt · recCrit · roles · rpOpt 중 하나, value 는 [지금 앱 상태]의 「설계 칸과 값 모양」대로 그 칸 전체 값(바꾸지 않는 부분도 지금 값 그대로 넣는다). null 이면 기본값으로. 바꾼 뒤 무엇이 어떻게 바뀌었는지 한 줄씩 말한다.",
         inputSchema: { type: "object", properties: { name: { type: "string", enum: DS_KEYS }, value: {} }, required: ["name", "value"] },
