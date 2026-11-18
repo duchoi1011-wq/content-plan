@@ -51,8 +51,8 @@ header>.brand{padding-right:min(46vw,190px)}
 <body>
 <span id="rtdot" aria-hidden="true"></span>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script>window.BRAINY_VERSION = "f5bd57e479"; window.BRAINY_APP = {key: "content", name: "콘텐츠 기획", icon: "ct-icon-192.png", sub: "키워드와 트렌드로 주제를 고르고 대본 초안까지", colls: ["ct.data", "ct.set", "cmd", "bchat"]};</script>
-<script src="shim.js?v=f5bd57e479"></script>
+<script>window.BRAINY_VERSION = "d9fea53f40"; window.BRAINY_APP = {key: "content", name: "콘텐츠 기획", icon: "ct-icon-192.png", sub: "키워드와 트렌드로 주제를 고르고 대본 초안까지", colls: ["ct.data", "ct.set", "cmd", "bchat"]};</script>
+<script src="shim.js?v=d9fea53f40"></script>
 <script>document.addEventListener("click", function (e) { var b = e.target.closest && e.target.closest("[data-brainy=out]"); if (b && confirm("로그아웃할까요?")) window.BRAINY.signOut(); });</script>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="apple-mobile-web-app-title" content="콘텐츠 기획">
@@ -1197,7 +1197,7 @@ function viewScript(){
   if(!live.length) h += "<p class=\"empty\">대본을 모두 지웠어요. 아래 「지운 것」에서 되돌릴 수 있어요.</p>";
   sc.items.forEach(function(x, i){
     if(isGone("script", sid(x))) return;
-    h += "<section class=\"card\"><div class=\"card-h\"><h3>" + txt(x.title) + "</h3><span class=\"n\">" + esc(x.rec || "") + " · " + esc(x.status || "") + "</span></div>" +
+    h += "<section class=\"card\"><div class=\"card-h\"><h3>" + txt(x.title) + "</h3><span class=\"n\">" + esc(recNo(x.rec || "")) + " · " + esc(x.status || "") + "</span></div>" +
       (x.meta ? "<p class=\"lead\">" + md(x.meta) + "</p>" : "") +
       (x.summary ? "<h4>스크립트 요약</h4><div class=\"pre\">" + md(x.summary) + "</div>" : "") +
       (x.shoot ? "<details><summary>촬영 요약</summary><div class=\"pre\" style=\"margin-top:6px\">" + md(x.shoot) + "</div></details>" : "") +
