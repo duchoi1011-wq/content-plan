@@ -51,8 +51,8 @@ header>.brand{padding-right:min(46vw,190px)}
 <body>
 <span id="rtdot" aria-hidden="true"></span>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script>window.BRAINY_VERSION = "eaa4220d39"; window.BRAINY_APP = {key: "content", name: "콘텐츠 기획", icon: "ct-icon-192.png", sub: "키워드와 트렌드로 주제를 고르고 대본 초안까지", colls: ["ct.data", "ct.set", "cmd", "bchat"]};</script>
-<script src="shim.js?v=eaa4220d39"></script>
+<script>window.BRAINY_VERSION = "0cb63abeb0"; window.BRAINY_APP = {key: "content", name: "콘텐츠 기획", icon: "ct-icon-192.png", sub: "키워드와 트렌드로 주제를 고르고 대본 초안까지", colls: ["ct.data", "ct.set", "cmd", "bchat"]};</script>
+<script src="shim.js?v=0cb63abeb0"></script>
 <script>document.addEventListener("click", function (e) { var b = e.target.closest && e.target.closest("[data-brainy=out]"); if (b && confirm("로그아웃할까요?")) window.BRAINY.signOut(); });</script>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="apple-mobile-web-app-title" content="콘텐츠 기획">
@@ -94,7 +94,7 @@ nav::-webkit-scrollbar{display:none}
 nav button{flex:1 0 auto;text-align:center;padding:8px 11px;border-radius:10px;color:var(--muted);background:none;border:0;font:inherit;font-weight:600;font-size:14px;white-space:nowrap;cursor:pointer}
 .nextbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin:14px 0 4px;padding:12px 14px;border-radius:14px;background:color-mix(in srgb,var(--accent) 8%,var(--surface));border:1px solid color-mix(in srgb,var(--accent) 25%,var(--line))}.nb-t{font-weight:700;font-size:14px}
 .dsline{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;font-size:14px}.dsnow{font-size:14px;margin:6px 0 2px}.ds .card{box-shadow:none;border:0;padding:0;margin:8px 0 0;background:none}
-@media (max-width:560px){.seedchips{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px}.seedchips .chip{flex:none}#seed-list .subnav+.lead{display:none}}   /* 폰: 씨앗 칩은 한 줄 가로 넘김, 칸 설명은 숨김 — 첫 키워드 줄이 첫 화면에 (2026-11-18 검증) */
+@media (max-width:560px){.chips.seedchips{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px}.seedchips .chip{flex:none}#seed-list .subnav+.lead{display:none}}   /* 폰: 씨앗 칩은 한 줄 가로 넘김(.chips 보다 세게 — 뒤의 .chips 가 줄바꿈을 다시 켜던 것), 칸 설명은 숨김 — 첫 키워드 줄이 첫 화면에 (2026-11-18 검증) */
 .wbox{border:1px solid var(--line);border-radius:14px;margin-top:10px;background:var(--surface)}.wbox>summary{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:12px 14px;font-size:14px;color:var(--ink)}.wbox[open]>summary{border-bottom:1px solid var(--line)}.wsum{font-weight:500;color:var(--muted);font-size:13px}.wbody{padding:6px 14px 14px}
 .spick{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px;padding:8px;border-radius:10px;background:var(--surface-2)}
 #toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);opacity:0;pointer-events:none;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;font-weight:600;max-width:calc(100vw - 32px);transition:.2s;z-index:50}#toast.on{opacity:1;transform:translate(-50%,0)}
@@ -2671,9 +2671,10 @@ render();
   }
   function archive() { var c = clean(turns); if (!c.some(function (t) { return t.role === "user"; }) || past.some(function (p) { return sig(p.turns) === sig(c); })) return; past.unshift({ at: Date.now(), title: titleOf(c), turns: c }); past = past.slice(0, 20); }
   function others() {   // 다른 기기의 지금 대화 — 이 기기 것·지난 대화와 같은 건 뺀다
-    var r = remote || {}, mine = sig(turns), list = [];
-    Object.keys(r.devs || {}).forEach(function (k) { var d = r.devs[k]; if (k === DEV || k === "old" || !d || !clean(d.turns).some(function (t) { return t.role === "user"; }) || sig(d.turns) === mine || past.some(function (p) { return sig(p.turns) === sig(d.turns); })) return; list.push({ at: d.at, title: titleOf(d.turns), turns: clean(d.turns), other: true }); });
-    return list.sort(function (a, b) { return b.at - a.at; });
+    var r = remote || {}, mine = sig(turns), list = [], seen = {};
+    Object.keys(r.devs || {}).forEach(function (k) { var d = r.devs[k]; if (k === DEV || k === "old" || !d || !clean(d.turns).some(function (t) { return t.role === "user"; }) || sig(d.turns) === mine || past.some(function (p) { return sig(p.turns) === sig(d.turns); })) return; list.push({ at: d.at, title: titleOf(d.turns), turns: clean(d.turns), other: true, sg: sig(d.turns) }); });
+    /* 다른 기기끼리 같은 대화(새 기기가 처음 열 때 이어받은 것)는 가장 최근 하나만 (2026-11-18 검증: 같은 줄이 두 번) */
+    return list.sort(function (a, b) { return b.at - a.at; }).filter(function (x) { if (seen[x.sg]) return false; seen[x.sg] = 1; return true; });
   }
   /* 기다리는 동안 몇 초째인지 — 맥에서 답하면 볼트를 여러 개 열어 보느라 1~8분까지 걸린다 (2026-11-18 검증: 「몇십 초」라 했는데 7분 53초) */
   var t0 = 0;
