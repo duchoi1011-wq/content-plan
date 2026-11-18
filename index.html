@@ -51,8 +51,8 @@ header>.brand{padding-right:min(46vw,190px)}
 <body>
 <span id="rtdot" aria-hidden="true"></span>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script>window.BRAINY_VERSION = "e0b43f2cae"; window.BRAINY_APP = {key: "content", name: "콘텐츠 기획", icon: "ct-icon-192.png", sub: "키워드와 트렌드로 주제를 고르고 대본 초안까지", colls: ["ct.data", "ct.set", "cmd", "bchat"]};</script>
-<script src="shim.js?v=e0b43f2cae"></script>
+<script>window.BRAINY_VERSION = "444806957c"; window.BRAINY_APP = {key: "content", name: "콘텐츠 기획", icon: "ct-icon-192.png", sub: "키워드와 트렌드로 주제를 고르고 대본 초안까지", colls: ["ct.data", "ct.set", "cmd", "bchat"]};</script>
+<script src="shim.js?v=444806957c"></script>
 <script>document.addEventListener("click", function (e) { var b = e.target.closest && e.target.closest("[data-brainy=out]"); if (b && confirm("로그아웃할까요?")) window.BRAINY.signOut(); });</script>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="apple-mobile-web-app-title" content="콘텐츠 기획">
@@ -101,7 +101,7 @@ nav button{flex:1 0 auto;text-align:center;padding:8px 11px;border-radius:10px;c
 html{scrollbar-gutter:stable}   /* 짧은 탭에서 스크롤바가 사라져 폭이 15px 바뀌던 것 */
 details.help{margin:2px 0 6px}details.help>summary{font-size:13px;font-weight:600}
 .pastbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin:0 0 12px;padding:10px 12px;border-radius:12px;background:#FFF4D6;color:#5a4300;border:1px solid #F0D27A;font-size:14px}.pastbar .mk{width:44px;height:44px}
-.pastpill{position:fixed;z-index:30;left:max(16px,env(safe-area-inset-left,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));max-width:calc(100% - 200px);min-height:44px;padding:0 14px;border-radius:22px;border:1px solid #F0D27A;background:#FFF4D6;color:#5a4300;font:inherit;font-size:13px;font-weight:700;box-shadow:0 6px 18px rgba(0,0,0,.15);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pastpill{position:fixed;z-index:30;left:max(16px,env(safe-area-inset-left,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));max-width:calc(100% - 140px);min-height:44px;padding:0 14px;border-radius:22px;border:1px solid #F0D27A;background:#FFF4D6;color:#5a4300;font:inherit;font-size:13px;font-weight:700;box-shadow:0 6px 18px rgba(0,0,0,.15);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hday{margin:12px 0 2px;font-size:13px;font-weight:700;color:var(--muted)}.list .it.on{outline:2px solid var(--accent);outline-offset:-2px}
 .mk.imp[aria-pressed=true]{background:#6B4FD8;border-color:#6B4FD8;color:#fff}
 .runs{margin:0 0 14px}.runs>summary{padding:8px 4px}
@@ -382,7 +382,7 @@ function ladderHtml(items, cell){
   }).join("") + (items.some(function(x){ return !x.stage }) ? "<p class=\"lead\">단계가 안 붙은 " + items.filter(function(x){ return !x.stage }).length + "개는 사다리에서 빠졌어요.</p>" : "") + "</div>";
 }
 function setS(patch){
-  if(pastOn() && Object.keys(patch).some(function(k){ return /Req$/.test(k) })){ toast("옛 기록을 보는 중이라 맥에 일을 보내지 않아요 — 맨 위 「지금 자료로 돌아가기」 뒤에 눌러 주세요"); return }   // 🕘 그때 결과로 일을 돌리면 지금 자료와 섞인다
+  if(pastOn() && Object.keys(patch).some(function(k){ return /Req$/.test(k) })){ toast(PAST_BLOCK); return }   // 🕘 그때 결과로 일을 돌리면 지금 자료와 섞인다
   var s = Object.assign({}, SETS[cur] || {}, patch, { updatedAt: new Date().toISOString() });
   SETS[cur] = s;
   if(!pastOn()) s.cand = candidates(S()).map(function(k){ return { kw: k.kw, score: k.score } });   // 그때 조사 후보 — 맥이 설정.json 으로 받아 기록 PDF 에 쓴다 (옛 기록을 보는 중엔 옛 자료로 다시 세지 않고 그대로 — 2026-11-18 검증)
@@ -414,7 +414,7 @@ function isOpen(c){ return /보내는 중|맥 대기|처리 중/.test(c.status |
 function openCmd(kind){ return CMDS.filter(function(c){ return c.kind === kind && c.brand === cur && isOpen(c) })[0] }
 function send(kind, text, params){
   if(!DB || openCmd(kind)) return;
-  if(pastOn()){ toast("옛 기록을 보는 중이라 맥에 일을 보내지 않아요 — 맨 위 「지금 자료로 돌아가기」 뒤에 눌러 주세요"); return }
+  if(pastOn()){ toast(PAST_BLOCK); return }
   var id = "c" + Date.now().toString(36), at = new Date().toISOString(), b = B();
   if(BASE_KINDS[kind] && b){ params = Object.assign(baseParams(), params || {}); text += baseText() }   // 구축·참고 페이지·대본 일에는 기준 키워드 · 영상 주제를 같이 (content-basekw.js)
   var data = { text: "🎬 콘텐츠 기획 — " + (b ? b.name : (params && params.name) || "") + " " + text, from: "content", app: "content", kind: kind,
@@ -1458,7 +1458,7 @@ function autoPinApply(){
 /* 추천 「먼저」 키워드를 ★하고 바로 콘텐츠 검색 — 콘텐츠 탭 「키워드로 찾은 콘텐츠」로 넘어간다 */
 function kwRecGo(){
   if(searchState().busy) return;
-  if(pastOn()){ toast("옛 기록을 보는 중이라 맥에 일을 보내지 않아요 — 맨 위 「지금 자료로 돌아가기」 뒤에 눌러 주세요"); return }   // 탭을 옮기기 전에 막는다
+  if(pastOn()){ toast(PAST_BLOCK); return }   // 탭을 옮기기 전에 막는다
   var kws = kwRecPicks().map(function(x){ return x.kw }).slice(0, 10); if(!kws.length) return;
   var pin = Object.assign({}, S().pin), ex = Object.assign({}, S().ex);
   kws.forEach(function(k){ pin[k] = 1; delete ex[k] });
@@ -1989,7 +1989,8 @@ var IMP_GO = { kw: "kwall", rec: "rec", script: "script" };   // 지금 자료�
 var IMP_KINDS = [["run", "돌린 기록"], ["kw", "키워드"], ["vid", "영상"], ["rec", "추천"], ["script", "대본"]];
 var HIST_VIEW = { search: "refView=search", analysis: "refView=search", ref: "refView=videos" };   // 같은 탭 안 그 결과가 있는 칸까지 (2026-11-18 검증: 콘텐츠 검색을 열면 빈 「레퍼런스 영상」 칸이 떴다)
 var HIST_SPOT = { cmts: ".o-cmt", wordcand: "#word-find" };   // 탭 안에서 그 결과가 있는 자리로 내려 준다 (2026-11-18 검증: 댓글·단어 후보는 두 화면 아래)
-var PAST = null;   // {brand, id, part, label, at, data} — 과거 기록을 보는 중
+var PAST = null;
+var PAST_BLOCK = "옛 기록을 보는 중이라 실행하지 않아요 — 「돌아가기」를 누른 뒤에 눌러 주세요";   // 보는 중 실행 버튼을 막을 때 알림 (한 곳)   // {brand, id, part, label, at, data} — 과거 기록을 보는 중
 var HCACHE = {};
 
 function hAt(at){ var d = new Date(at); return isNaN(d) ? String(at || "") : (d.getMonth() + 1) + "/" + d.getDate() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2) }
@@ -2017,7 +2018,10 @@ function histOpen(id){
   if(!x){ toast("그 기록이 목록에 없어요"); return }
   function show(data){ PAST = { brand: cur, id: x.id, part: x.part, label: x.label, at: x.at, data: data }; tab = HIST_TAB[x.part] || "sum"; save("ct.tab", tab); if(HIST_VIEW[x.part]){ var kv = HIST_VIEW[x.part].split("="); ui[kv[0]] = kv[1] }
     window.scrollTo(0, 0); render();
-    var spot = HIST_SPOT[x.part], el = spot && document.querySelector(spot); if(el) window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - 90) }
+    var spot = HIST_SPOT[x.part], el = spot && document.querySelector(spot); if(!el) return;
+    var hd = document.querySelector("header"), top = (hd ? hd.getBoundingClientRect().bottom : 0) + 12;   // 위에 붙는 머리 칸만큼 비켜서
+    window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - top);
+    var box = el.closest(".orig"); if(box) box.scrollLeft = Math.max(0, el.getBoundingClientRect().left - box.getBoundingClientRect().left + box.scrollLeft - 8) }   // 폰에서 옆으로 미는 표면 그 칸이 보이게 (2026-11-18 검증)
   if(HCACHE[cur + "." + id]) return show(HCACHE[cur + "." + id]);
   if(!x.cloud && !impOf("run", id)){ toast("오래된 기록이라 볼트에만 있어요 — 🔖 하면 맥이 30초 안에 다시 올려요"); return }
   if(!window.BRAINY || !BRAINY.fetch){ toast("이 화면에서는 기록을 받을 수 없어요"); return }
@@ -2034,7 +2038,7 @@ function pastBarHtml(){
   if(!PAST || PAST.brand !== cur) return "";
   return "<div class=\"pastbar\" role=\"status\"><span>🕘 <b>" + esc(hAt(PAST.at)) + " 「" + esc(PAST.label) + "」</b> 기록을 보는 중 — 이 단계만 그때 결과예요</span>" +
     "<span class=\"acts\" style=\"margin:0\">" + impBtn("run", PAST.id, PAST.label, hAt(PAST.at)) + "<button class=\"btn sm primary\" data-act=\"histclose\">지금 자료로 돌아가기</button></span></div>" +
-    "<button class=\"pastpill\" data-act=\"histclose\" title=\"지금 자료로 돌아가기\">🕘 " + esc(hAt(PAST.at)) + " 기록 보는 중 · 돌아가기</button>";
+    "<button class=\"pastpill\" data-act=\"histclose\" title=\"" + esc(hAt(PAST.at) + " 「" + PAST.label + "」") + " 기록을 보는 중 — 지금 자료로 돌아가기\">🕘 기록 보는 중 · 돌아가기</button>";
 }
 
 function viewHist(){
@@ -2174,7 +2178,7 @@ function autoState(){
 }
 function autoStart(){
   var a = autoState(), o = autoOpt(); if(a.running || !seedsOf().length) return;
-  if(pastOn()){ toast("옛 기록을 보는 중이라 맥에 일을 보내지 않아요 — 맨 위 「지금 자료로 돌아가기」 뒤에 눌러 주세요"); return }   // 확인창보다 먼저
+  if(pastOn()){ toast(PAST_BLOCK); return }   // 확인창보다 먼저
   var label = AUTO_UPTO.filter(function(x){ return x[0] === o.upto })[0][1];
   if(!confirm("🚀 자동 진행 — 씨앗마다 최고 키워드 ★ → 콘텐츠 추천" + (o.upto !== "rec" ? " → 구축 문서 " + o.n + "편 (" + autoSplitText(o.n) + ")" : "") + (o.upto === "script" ? " → 대본 " + o.n + "편" : "") + " → 보고. " + label + " 맥이 이어서 해요 (30분~1시간). 시작할까요?")) return;
   setS({ autoReq: { at: new Date().toISOString(), upto: o.upto, n: o.n, split: autoSplit(o.n), params: Object.assign({ kw: kwRecParams(), rec: recParams() }, baseParams()) } });
@@ -2557,7 +2561,7 @@ function act(name, el){
   if(claudeAct(name, el)) return;   // ⚙ Claude 모드 (content-claude.js)
   if(designAct(name, el)) return;   // 설계 · 템플릿 (content-design.js)
   if(histAct(name, el)) return;   // 🕘 돌린 기록 · 🔖 중요 (content-hist.js)
-  if(pastOn() && { ideas: 1, idearesearch: 1, ideascript: 1 }[name]){ toast("옛 기록을 보는 중이라 맥에 일을 보내지 않아요 — 맨 위 「지금 자료로 돌아가기」 뒤에 눌러 주세요"); return }   // 보내기 전에 고른 것을 지우거나 칸을 옮기지 않게
+  if(pastOn() && { ideas: 1, idearesearch: 1, ideascript: 1 }[name]){ toast(PAST_BLOCK); return }   // 보내기 전에 고른 것을 지우거나 칸을 옮기지 않게
   if(profAct(name, el)) return;   // 브랜드 탭 그 자리 고치기 (content-profile.js)
   if(baseAct(name, el)) return;   // 기준 키워드 · 영상 주제 · 지우기/되돌리기 · 찾는 나라 (content-basekw.js)
   var s = S();
