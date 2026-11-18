@@ -51,8 +51,8 @@ header>.brand{padding-right:min(46vw,190px)}
 <body>
 <span id="rtdot" aria-hidden="true"></span>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script>window.BRAINY_VERSION = "d7af74c00f"; window.BRAINY_APP = {key: "content", name: "콘텐츠 기획", icon: "ct-icon-192.png", sub: "키워드와 트렌드로 주제를 고르고 대본 초안까지", colls: ["ct.data", "ct.set", "cmd", "bchat"]};</script>
-<script src="shim.js?v=d7af74c00f"></script>
+<script>window.BRAINY_VERSION = "a42ea579a9"; window.BRAINY_APP = {key: "content", name: "콘텐츠 기획", icon: "ct-icon-192.png", sub: "키워드와 트렌드로 주제를 고르고 대본 초안까지", colls: ["ct.data", "ct.set", "cmd", "bchat"]};</script>
+<script src="shim.js?v=a42ea579a9"></script>
 <script>document.addEventListener("click", function (e) { var b = e.target.closest && e.target.closest("[data-brainy=out]"); if (b && confirm("로그아웃할까요?")) window.BRAINY.signOut(); });</script>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="apple-mobile-web-app-title" content="콘텐츠 기획">
@@ -1944,7 +1944,7 @@ function viewTpl(){
   if(!B()) return "<p class=\"empty\">브랜드를 먼저 고르세요.</p>";
   var list = tplList(), c = SETS[cur] || {};
   return "<section class=\"card\"><div class=\"card-h\"><h3>템플릿</h3><span class=\"n\">" + list.length + "개</span></div>" +
-    "<p class=\"lead\">지금 브랜드(" + esc(B().name) + ")의 단계별 기준 — 단어 받는 곳 · 키워드 순위 · 영상 분석 · 추천 기준과 편 수 · 참고 페이지 범위 — 를 한 벌로 저장해요. 다른 브랜드를 열고 「적용」하면 그 브랜드의 설계가 이 한 벌로 바뀌어요.</p>" +
+    "<p class=\"lead\">지금 브랜드(" + esc(B().name) + ")의 단계별 기준 — 단어 받는 곳 · 키워드 순위 · 영상 분석 · 추천 기준과 편 수 · 참고 페이지 범위 — 를 한 벌로 저장해요. 다른 브랜드를 열고 「적용」하면 그 브랜드의 단계별 기준이 이 한 벌로 바뀌어요.</p>" +
     "<div class=\"row2\"><input type=\"text\" id=\"tpl-name\" data-tplin=\"1\" maxlength=\"30\" placeholder=\"템플릿 이름 (예: B2B 문의형 · 개인 채널 성장형)\" value=\"" + esc(ui.tplDraft || "") + "\"><button class=\"btn primary\" data-act=\"tplsave\">지금 기준 저장</button></div></section>" +
     "<section class=\"card\"><div class=\"list\">" + (list.map(function(t){
       return "<div class=\"it\"><div class=\"it-m\"><div class=\"it-h\"><b>" + esc(t.name) + "</b> <span class=\"num muted\">" + esc(String(t.at || "").slice(0, 10)) + " · " + esc(t.from || "") + "에서</span></div>" +
@@ -2510,7 +2510,7 @@ function viewBrand(){
    2026-11-17 검증: Enter 뒤 커서가 칸에 남아 있으면 결과가 와도 「받는 중」에서 안 바뀌던 문제 */
 var lastInput = 0, composing = false;
 document.addEventListener("compositionstart", function(){ composing = true });
-document.addEventListener("compositionend", function(){ composing = false; lastInput = Date.now() });
+document.addEventListener("compositionend", function(e){ composing = false; lastInput = Date.now(); var id = e.target && e.target.id; if(id === "setq" || id === "impq"){ if(id === "setq") ui.setQ = e.target.value; else ui.impQ = e.target.value; render() } });   // 치는 대로 걸러 보는 칸 — 조합이 끝나면 그린다
 document.addEventListener("input", function(){ lastInput = Date.now() }, true);
 function typing(){ var a = document.activeElement; return !!(a && /^(INPUT|TEXTAREA)$/.test(a.tagName) && !/^(range|checkbox|file|date)$/.test(a.type) && (document.getElementById("view").contains(a) || (document.getElementById("setm") || document.body).contains(a) && !!ui.set) && (composing || Date.now() - lastInput < 2000)) }
 function renderSoft(){ if(typing()){ if(!ui.later){ ui.later = true; (function wait(){ setTimeout(function(){ if(!ui.later) return; if(typing()) return wait(); ui.later = false; render() }, 800) })() } return } render() }
@@ -2571,8 +2571,8 @@ document.addEventListener("input", function(e){
   if(e.target.dataset.wordin != null) ui.wDraft = e.target.value;
   if(e.target.dataset.dsask != null) ui.dsDraft = e.target.value;   // 설계 「말로 바꾸기」 · 템플릿 이름 — 다시 그려도 쓰던 글을 지킨다
   if(e.target.dataset.tplin != null) ui.tplDraft = e.target.value;
-  if(e.target.id === "setq"){ ui.setQ = e.target.value; render() }   // ⚙ 설정 칸 찾기
-  if(e.target.id === "impq"){ ui.impQ = e.target.value; render() }   // 🔖 중요 찾기 — 치는 대로 걸러 보기
+  if(e.target.id === "setq"){ ui.setQ = e.target.value; if(!e.isComposing) render() }   // ⚙ 설정 칸 찾기 — 한글 조합 중엔 그리지 않고 다 쓴 뒤(compositionend)에 (2026-11-18 검증: 「ㄱ기기ㄹ로록록」)
+  if(e.target.id === "impq"){ ui.impQ = e.target.value; if(!e.isComposing) render() }   // 🔖 중요 찾기 — 치는 대로 걸러 보기
   if(e.target.dataset.basekw != null) ui.baseDraft = e.target.value;   // 기준 키워드 넣기 칸
   if(e.target.id === "base-topic") ui.topicDraft = e.target.value;   // 영상 주제 한 줄 — 저장 전 쓰던 글
   if(e.target.dataset.prin != null){ ui.prDraft = Object.assign({}, ui.prDraft); ui.prDraft[e.target.dataset.prin] = e.target.value }   // ✍️ 내 말로 끼어들기 — 쓰던 글 지키기   // 단어 후보 찾기 칸 — 다시 그려도 쓰던 글을 지킨다
@@ -2793,7 +2793,7 @@ render();
       { name: "open_tab", description: "콘텐츠 기획 앱의 탭을 연다: sum(한눈에) · brand(브랜드) · kw(키워드 › 씨앗별 검색어) · kwall(키워드 › 전체 키워드) · ref(콘텐츠) · rec(추천) · build(구축) · refpage(참고 페이지) · script(대본) · 그리고 ⚙ 설정 창의 칸: design(단계별 기준) · tpl(템플릿) · claude(Claude 모드) · hist(🕘 돌린 기록) · imp(🔖 중요).",
         inputSchema: { type: "object", properties: { tab: { type: "string", enum: ["sum", "brand", "kw", "kwall", "ref", "rec", "build", "refpage", "script", "design", "tpl", "claude", "hist", "imp"] } }, required: ["tab"] },
         execute: function (i) { if (isSet(i.tab)) { setOpen(i.tab); return "⚙ 설정 창 › " + i.tab; } ui.set = null; tab = i.tab; save("ct.tab", tab); window.scrollTo(0, 0); render(); return subName(i.tab); } },   // 설계 · 기록 칸은 ⚙ 설정 창
-      { name: "set_design", description: "지금 브랜드의 ⚙ 설정 › 단계별 기준(자동 추천 기준)을 바꾼다. 동욱이 설정을 바꿔 달라고 분명히 말했을 때만. name 은 seedSrc · kwCrit · anaOpt · recCrit · roles · rpOpt 중 하나, value 는 [지금 앱 상태]의 「설계 칸과 값 모양」대로 그 칸 전체 값(바꾸지 않는 부분도 지금 값 그대로 넣는다). null 이면 기본값으로. 바꾼 뒤 무엇이 어떻게 바뀌었는지 한 줄씩 말한다.",
+      { name: "set_design", description: "지금 브랜드의 ⚙ 설정 › 단계별 기준(자동 추천 기준)을 바꾼다. 동욱이 설정을 바꿔 달라고 분명히 말했을 때만. name 은 seedSrc · kwCrit · anaOpt · recCrit · roles · rpOpt 중 하나, value 는 [지금 앱 상태]의 「단계별 기준 칸과 값 모양」대로 그 칸 전체 값(바꾸지 않는 부분도 지금 값 그대로 넣는다). null 이면 기본값으로. 바꾼 뒤 무엇이 어떻게 바뀌었는지 한 줄씩 말한다.",
         inputSchema: { type: "object", properties: { name: { type: "string", enum: DS_KEYS }, value: {} }, required: ["name", "value"] },
         execute: function (i) {
           if (DS_KEYS.indexOf(i.name) < 0) return "바꿀 수 없는 칸이에요: " + i.name;
