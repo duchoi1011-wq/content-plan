@@ -51,8 +51,8 @@ header>.brand{padding-right:min(46vw,190px)}
 <body>
 <span id="rtdot" aria-hidden="true"></span>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script>window.BRAINY_VERSION = "d9fea53f40"; window.BRAINY_APP = {key: "content", name: "콘텐츠 기획", icon: "ct-icon-192.png", sub: "키워드와 트렌드로 주제를 고르고 대본 초안까지", colls: ["ct.data", "ct.set", "cmd", "bchat"]};</script>
-<script src="shim.js?v=d9fea53f40"></script>
+<script>window.BRAINY_VERSION = "d238c31d9f"; window.BRAINY_APP = {key: "content", name: "콘텐츠 기획", icon: "ct-icon-192.png", sub: "키워드와 트렌드로 주제를 고르고 대본 초안까지", colls: ["ct.data", "ct.set", "cmd", "bchat"]};</script>
+<script src="shim.js?v=d238c31d9f"></script>
 <script>document.addEventListener("click", function (e) { var b = e.target.closest && e.target.closest("[data-brainy=out]"); if (b && confirm("로그아웃할까요?")) window.BRAINY.signOut(); });</script>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="apple-mobile-web-app-title" content="콘텐츠 기획">
@@ -88,7 +88,7 @@ header{position:sticky;top:env(safe-area-inset-top, 0px);z-index:5;background:co
 h1{font-size:22px;font-weight:800;margin:0;letter-spacing:-.03em;display:flex;align-items:center;gap:9px}
 h1::before{content:"";width:22px;height:22px;border-radius:7px;background:linear-gradient(135deg,var(--accent),var(--accent2))}
 .brand .links{flex-basis:100%;font-family:var(--f-body);font-size:12px}
-.links a,.links button{font:inherit;color:inherit;background:none;border:0;padding:0;text-decoration:underline;cursor:pointer}
+.links a,.links button{font:inherit;color:inherit;background:none;border:0;padding:10px 2px;text-decoration:underline;cursor:pointer}
 nav{display:flex;gap:2px;margin-top:12px;overflow-x:auto;scrollbar-width:none;background:var(--surface);border-radius:14px;padding:4px;box-shadow:var(--shadow)}
 nav::-webkit-scrollbar{display:none}
 nav button{flex:1 0 auto;text-align:center;padding:8px 11px;border-radius:10px;color:var(--muted);background:none;border:0;font:inherit;font-weight:600;font-size:14px;white-space:nowrap;cursor:pointer}
@@ -302,7 +302,7 @@ var ui = { kwKind: "all", kwMore: 60, refRole: "all", refSort: "mix", refBuyer: 
    tab 변수는 칸 id(sum·brand·kw·ref·rec·build·refpage·script) 그대로 — 위 탭을 누르면 그 탭에서 마지막으로 본 칸이 열린다 */
 var TABS = [
   { name: "브랜드", subs: [["sum", "한눈에"], ["brand", "브랜드"]] },
-  { name: "키워드", subs: [["kw", "키워드"]] },
+  { name: "키워드", subs: [["kw", "씨앗별 검색어"], ["kwall", "전체 키워드"]] },
   { name: "콘텐츠", subs: [["ref", "콘텐츠"], ["rec", "추천"]] },
   { name: "대본", subs: [["build", "구축"], ["refpage", "참고 페이지"], ["script", "대본"]] },
   { name: "설계", subs: [["design", "단계별 기준"], ["tpl", "템플릿"], ["claude", "Claude 모드"]] }
@@ -461,7 +461,7 @@ function wsum(pairs){   // [[가중치, 0~100 점수], …] → 가중 평균
 }
 
 /* ── 키워드 탭 — 점수 매기기 · 비율대로 후보 뽑기 · 화면 ──
-   점수(0~100) = 씨앗과 가까움 · 검색량 · 광고 클릭률 · 상승세 · 경쟁 적음의 가중 평균. 비중은 동욱이 키워드 탭 「순위 기준」에서 정한 순서다
+   점수(0~100) = 씨앗과 가까움 · 검색량 · 광고 클릭률 · 상승세 · 경쟁 적음의 가중 평균. 비중은 동욱이 설계 탭 「키워드」 칸에서 정한 순서다
    (content-kwcrit.js · ct.set kwCrit — 여기에 비중을 적지 않는다, 2026-11-17 믹서 kw_*·id_* 대신).
    클릭률은 월 검색 200 미만이면 그만큼 덜 믿는다 (검색 20에 클릭 4번이면 20%가 나오므로).
    검색량은 로그로 눌러 큰 키워드 하나가 다 가져가지 않게 한다. 상승세 = 구글 트렌드 최근 4주 ÷ 그 앞 8주. */
@@ -485,7 +485,10 @@ function seedItems(word, far){
   }).sort(function(a, b){ return b.score - a.score || b.total - a.total });
 }
 function seedRun(word){ var k = part("kw"); return ((k && k.seeds) || []).filter(function(x){ return x.word === word })[0] || null }
-function seedsPending(){ var k = part("kw"), have = ((k && k.seeds) || []).map(function(x){ return x.word }).join("|") + "@" + ((k && k.seedSrc) || "naver"); return seedsOf().map(function(x){ return x.word }).join("|") + "@" + seedSrc() !== have }
+function seedsPending(){   // 맥이 아직 안 받은 씨앗이 있거나 받는 곳이 바뀌었을 때만 — 씨앗을 빼기만 한 것은 다시 받지 않는다 (2026-11-18 검증: 뺀 뒤 「받는 중」이 안 사라지던 것)
+  var k = part("kw"), have = ((k && k.seeds) || []).map(function(x){ return x.word });
+  return seedsOf().some(function(x){ return have.indexOf(x.word) < 0 }) || (!!k && (k.seedSrc || "naver") !== seedSrc());
+}
 function seedRowHtml(x, s){
   var r = seedRun(x.word), n = seedItems(x.word, false), nf = seedItems(x.word, true).length;
   return "<div class=\"it\"><div class=\"it-m\"><div class=\"it-h\"><b>" + esc(x.word) + "</b></div>" +
@@ -545,7 +548,7 @@ function seedsHtml(){
   var sd = seedsOf(), s = S(), src = SEED_SRC.filter(function(o){ return o[0] === seedSrc() })[0];
   var h = "<section class=\"card\"><div class=\"card-h\"><h3>씨앗 단어</h3><button class=\"chip\" data-go=\"brand\">단어 고치기 →</button></div>" +
     "<details class=\"help\"><summary>씨앗 단어가 뭔가요?</summary><p class=\"lead\">브랜드 정체성 단어와 상품 판매 단어마다 " + esc(src ? src[1] : "") + (seedSrc() === "both" ? "(네이버 + 구글)" : "") + "에서 받은 연관 검색어예요. 쓸 검색어에 ★을 누르면 「검증한 키워드」가 되고, 다음 단계(조사·추천·대본)는 ★한 것 위주로 가요.</p></details>" +
-    (sd.length ? "" : "<p class=\"note\">아직 씨앗 단어가 없어요. 브랜드 탭에서 넣으세요.</p>") + seedPendingHtml() + kwCountryHtml() + "</section>" + kwRecBarHtml();   // 찾는 나라 (content-basekw.js)
+    (sd.length ? "" : "<p class=\"note\">아직 씨앗 단어가 없어요. 브랜드 탭에서 넣으세요.</p>") + seedPendingHtml() + dsLine("word") + "</section>" + kwRecBarHtml();   // 찾는 나라 (content-basekw.js)
   var pickW = ui.seed && sd.some(function(x){ return x.word === ui.seed }) ? ui.seed : (sd[0] || {}).word;
   if(pickW){
     var all0 = seedItems(pickW), tab0 = ui.sTab || "naver", more = ui.seedMore || 15;
@@ -554,7 +557,7 @@ function seedsHtml(){
     h += "<section class=\"card\" id=\"seed-list\"><div class=\"card-h\"><h3>「" + esc(pickW) + "」 연관 검색어</h3><span class=\"n\">" + all0.length + "개</span></div><div class=\"chips\">" +
       sd.map(function(x){ return "<button class=\"chip" + (x.word === pickW ? " on" : "") + "\" data-ui=\"seed=" + esc(x.word) + "\"><i class=\"dot " + (x.kind === "상품" ? "p" : "i") + "\"></i>" + esc(x.word) + "<span>" + seedItems(x.word).filter(function(y){ return kwShown(y, x.word) }).length + "</span></button>" }).join("") + "</div>" +
       srcTabsHtml("sTab", all0.filter(function(y){ return kwShown(y, pickW) }), pickW) +
-      "<p class=\"it-d\" style=\"margin-top:4px\">점수 높은 순 · <button class=\"chip\" data-go=\"design|dsOpen=kw\">순위 기준 바꾸기 →</button></p>" + kwRecSeedHtml(pickW) +
+      "<div style=\"margin-top:6px\">" + dsLine("kw") + "</div>" + kwRecSeedHtml(pickW) +
       (tab0 !== "naver" && seedSrc() === "naver" ? "<p class=\"note\" style=\"margin-top:8px\">지금은 네이버에서만 받아요. 구글 트렌드도 보려면 브랜드 탭 「연관 검색어 받는 곳」을 「둘 다」로 바꾸세요.</p>" : "") +
       "<div class=\"list\" style=\"margin-top:6px\">" + (near.slice(0, more).map(function(x){ return kwRow(x, s, true) }).join("") || "<p class=\"empty\">" + (tab0 === "both" ? "네이버와 구글 둘 다에서 나온 말이 아직 없어요." : "이 칸에 나온 연관 검색어가 없어요.") + "</p>") + "</div>" +
       (near.length > more ? "<div class=\"acts\"><button class=\"btn sm\" data-ui=\"seedMore=" + (more + 25) + "\">더 보기 (" + (near.length - more) + "개 남음)</button></div>" : "") +
@@ -699,7 +702,8 @@ function viewKw(){
   var s = S(), all = scored(), c = candidates(s), sp = split(s), t = part("trend");
   var h0 = seedsHtml();
   var nP = c.filter(function(x){ return x.kind === "상품" }).length;
-  var h = h0 + searchBoxHtml() + "<section class=\"card\"><details><summary>깊게 조사 — 경쟁사·레퍼런스 20개·시트·카드까지 (맥의 Claude) · 후보 " + c.length + "개</summary>" +
+  if(tab === "kw") return h0 + searchBoxHtml();   // 키워드 › 씨앗별 검색어 (전체 키워드 · 주제 묶음 · 깊게 조사는 「전체 키워드」 칸 — 2026-11-18 동욱 "늘어지는 건 새 탭으로")
+  var h = "<section class=\"card\"><details><summary>깊게 조사 — 경쟁사·레퍼런스 20개·시트·카드까지 (맥의 Claude) · 후보 " + c.length + "개</summary>" +
     "<p class=\"lead\" style=\"margin-top:8px\">상품 " + s.ratio + " : 정체성 " + (100 - s.ratio) + " 비율로 뽑되, ★한 검증 키워드를 먼저 다 넣고 남은 자리만 점수순으로 채워요. 「★만 조사」를 켜면 ★한 것만 조사해요. ✕는 빼기 — 뺀 것은 아래 「뺀 것」 칩에서 되살려요." +
     (c.length < s.count ? " 조건에 맞는 키워드가 " + (s.count - c.length) + "개 모자라요 — 아래 조건을 풀거나 조사를 돌려 새 키워드를 받으세요." : "") + "</p>" +
     "<div class=\"chips\" style=\"margin-bottom:6px\"><button class=\"chip" + (s.pinOnly ? " on" : "") + "\" data-set=\"pinOnly=" + !s.pinOnly + "\">★만 조사</button><button class=\"chip" + (s.buyOnly ? " on" : "") + "\" data-set=\"buyOnly=" + !s.buyOnly + "\">상품은 구매 결만</button>" +
@@ -718,9 +722,9 @@ function viewKw(){
     [["all", "전체"], ["상품", "상품"], ["정체성", "정체성"], ["up", "▲ 오르는 중"], ["gap", "빈 곳"], ["pin", "★ 즐겨찾기"], ["ex", "✕ 뺀 것"]]
       .map(function(f){ return "<button class=\"chip" + (ui.kwKind === f[0] ? " on" : "") + "\" data-ui=\"kwKind=" + f[0] + "\">" + f[1] + "<span>" + pool.filter(KF[f[0]]).length + "</span></button>" }).join("") + "</div>" +
     "<div class=\"list\" style=\"margin-top:6px\">" + list.slice(0, ui.kwMore).map(function(x){ return kwRow(x, s, true) }).join("") + "</div>" +
-    (list.length > ui.kwMore ? "<div class=\"acts\"><button class=\"btn sm\" data-ui=\"kwMore=" + (ui.kwMore + 100) + "\">더 보기 (" + (list.length - ui.kwMore) + "개 남음)</button></div>" : "") + "</section>";
+    ((list.length > ui.kwMore || ui.kwMore > 60) ? "<div class=\"acts\">" + (list.length > ui.kwMore ? "<button class=\"btn sm\" data-ui=\"kwMore=" + (ui.kwMore + 100) + "\">더 보기 (" + (list.length - ui.kwMore) + "개 남음)</button>" : "") + (ui.kwMore > 60 ? "<button class=\"btn sm\" data-ui=\"kwMore=60\">60개로 접기</button>" : "") + "</div>" : "") + "</section>";
   h += "<section class=\"card\"><details><summary>점수 계산 · 자료 출처</summary><div class=\"small\" style=\"margin-top:8px;display:grid;gap:6px\">" +
-    "<p>점수 = " + kwCrit().order.filter(function(id){ return kwWeights()[id] }).map(function(id){ return KWCRIT.filter(function(q){ return q.id === id })[0].name + " " + kwWeights()[id] }).join(" : ") + " 비중. 클릭률은 월 검색 200 미만이면 그만큼 덜 믿어요. <button class=\"chip\" data-go=\"design|dsOpen=kw\">순위 기준 바꾸기 →</button></p>" +
+    "<p>점수 = " + kwCrit().order.filter(function(id){ return kwWeights()[id] }).map(function(id){ return KWCRIT.filter(function(q){ return q.id === id })[0].name + " " + kwWeights()[id] }).join(" : ") + " 비중. 클릭률은 월 검색 200 미만이면 그만큼 덜 믿어요. <button class=\"chip\" data-go=\"design|dsOpen=kw\">설계에서 바꾸기 →</button></p>" +
     "<p>검색량·클릭률: " + esc(k.source || "") + " · " + day(k.updatedAt) + "</p>" +
     "<p>상승세(최근 4주 ÷ 그 앞 8주): " + (t ? esc(t.source || "") + " · " + day(t.updatedAt) + " · " + Object.keys(t.items || {}).length + "개 키워드" : "아직 받지 않음") + ". 검색이 적은 키워드는 구글이 값을 0으로 줘서 「값 적음」으로 두고 점수에서는 중간값으로 봐요.</p>" +
     "<p>경쟁(난이도): 네이버 경쟁정도와 월평균 노출 광고 수로 봐요 — 높음 + 광고 9개 이상이면 어려움, 광고 5개 이하면 쉬움. 주제 묶음: 같은 주제 말이 든 키워드의 검색량을 더한 값. 빈 곳: 구매 결인데 아직 조사·추천에 안 나온 키워드.</p>" +
@@ -908,7 +912,7 @@ function srScore(x, words){
    맥의 Claude가 ego lite 로 영상을 열어 읽는다 (cmd kind "analyze" → 볼트 <브랜드>/분석.json → ct.data .analysis, 영상 id 별).
    구매 욕구 검증 행은 구축 틀.json 의 「욕구 결 검증」과 같다(viewer · buyer · verdict · basis · fix). 무엇을 읽고 보여 줄지는 ct.set anaOpt */
 var ANA_PARTS = [["topic", "영상 주제"], ["wave", "파동 대사"], ["comments", "좋아요 많은 댓글"], ["fit", "구매 욕구 검증"]];
-function anaOpt(){ var o = (SETS[cur] || {}).anaOpt || {}; return { topic: o.topic !== false, wave: o.wave !== false, comments: o.comments !== false, fit: o.fit !== false, nCmt: CMT_TOP, target: o.target || "top", topN: o.topN || 3 } }
+function anaOpt(){ var o = (SETS[cur] || {}).anaOpt || {}; return { topic: o.topic !== false, wave: o.wave !== false, comments: o.comments !== false, fit: o.fit !== false, nCmt: [5, 10, 20].indexOf(o.nCmt) >= 0 ? o.nCmt : CMT_TOP, target: o.target || "top", topN: o.topN || 3 } }
 function anaOf(vid){ var a = part("analysis"); return a && a.items ? a.items[vid] : null }
 function fitV(x){ var a = anaOf(x.vid), v = a && a.fit && String(a.fit.verdict || "").split(" ")[0]; return { "같음": 100, "비슷": 60, "다름": 0 }[v] }
 function fitTag(x){ var a = anaOf(x.vid), v = a && a.fit && String(a.fit.verdict || "").split(" ")[0]; if(!v) return "";
@@ -1080,12 +1084,13 @@ function refBasisCell(x, r, key){
 }
 /* 댓글 — 좋아요 많은 순 5개 (2026-11-17 동욱 "댓글을 자세히 읽게 하는 칸 · 가져오는 모든 댓글은 좋아요 순 5개").
    볼트 <브랜드>/댓글.json(ct.data .cmts, content_app.py cmts — 공식 API 100개 중 좋아요 순) > 영상 분석 댓글 > 조사 시트 요약 글 */
-var CMT_TOP = 5;
+var CMT_TOP = 5;   // 좋아요 많은 댓글 기본 개수 — 설계 「콘텐츠」 칸에서 5·10·20 으로 바꾼다 (anaOpt().nCmt)
 function cmtsOf(vid){
   var c = vid && (((part("cmts") || {}).items) || {})[vid];
-  if(c && (c.comments || []).length) return { list: c.comments.slice(0, CMT_TOP), at: c.at };
+  if(c && (c.comments || []).length) return { list: c.comments.slice(0, anaOpt().nCmt), at: c.at };
   var an = vid ? anaOf(vid) : null;
-  if(an && (an.comments || []).length) return { list: an.comments.slice().sort(function(a, b){ return (b.likes || 0) - (a.likes || 0) }).slice(0, CMT_TOP), at: an.at };
+  if(an && (an.comments || []).length) return { list: an.comments.slice().sort(function(a, b){ return (b.likes || 0) - (a.likes || 0) })
+    .slice(0, anaOpt().nCmt), at: an.at };
   return c ? { list: [], error: c.error || "댓글 없음" } : null;
 }
 function cmtCell(r){
@@ -1308,7 +1313,7 @@ function recCritParams(){
     off: CRIT.filter(function(x){ return c.off[x.id] }).map(function(x){ return x.name }) };
 }
 
-/* ── 키워드 순위 기준 — 키워드 탭 「순위 기준」 칸 ──
+/* ── 키워드 순위 기준 — 설계 탭 「키워드」 칸의 몸통 (content-design.js · 2026-11-18 키워드 탭에서 옮김) ──
    2026-11-17 동욱: "흑염소사육은 왜 하나만 받았어?" → 씨앗 글자가 든 말만 남기던 규칙을 바꾸고, "순위를 매기는 기준을 합리적으로 바꾸고 그걸 내가 조절할 수 있는 설정 탭".
    맥(content_app.py seeds)은 이제 씨앗 글자가 안 든 네이버 연관 검색어도 버리지 않고 far 로 표시해 넘긴다. 무엇을 위로 올리고 무엇을 숨길지는 여기 값(ct.set kwCrit)이 정한다:
      ① 우선순위 — 아래 다섯 기준의 순서(위일수록 크게) · 끄기
@@ -1366,23 +1371,21 @@ function kwCritHtml(){
   var minVol = "<div class=\"chips\">" + KW_MINVOL.map(function(o){ return chip(c.minVol === o[0], "minVol:" + o[0], o[1]) }).join("") + "</div>";
   var minRel = "<div class=\"it-d\">씨앗과 글자가 하나도 안 겹치는 말을 거를지 골라요.</div><div class=\"chips\">" +
     KW_MINREL.map(function(o){ return chip(c.minRel === o[0], "minRel:" + o[0], o[1]) }).join("") + "</div>";
-  return "<section class=\"card\"><div class=\"card-h\"><h3>키워드 순위 기준 — 조절 · 우선</h3>" + ((SETS[cur] || {}).kwCrit ? "<button class=\"btn sm\" data-act=\"kc\" data-k=\"reset\">기본값으로</button>" : "") + "</div>" +
-    "<p class=\"lead\">씨앗 단어의 연관 검색어와 전체 키워드를 이 기준으로 점수 매기고 줄 세워요. 바꾸면 바로 저장되고 키워드 칸에 바로 반영돼요." + (k ? " 지금 키워드 " + all.length + "개 중 " + seen + "개가 보여요 (★한 말은 늘 보여요)." : "") + "</p><div class=\"list\">" +
+  return "<p class=\"it-d\">씨앗 단어의 연관 검색어와 전체 키워드를 이 기준으로 점수 매기고 줄 세워요. 바꾸면 바로 저장되고 키워드 칸에 바로 반영돼요." + (k ? " 지금 키워드 " + all.length + "개 중 " + seen + "개가 보여요 (★한 말은 늘 보여요)." : "") + "</p><div class=\"list\">" +
     step(1, "무엇을 먼저 볼까 (우선순위)", pri) + step(2, "씨앗 글자가 안 든 말", far) + step(3, "최소 검색량", minVol) + step(4, "씨앗과 얼마나 가까워야 하나", minRel) + "</div>" +
-    "<div class=\"acts\"><button class=\"btn sm\" data-go=\"kw\">키워드 칸에서 보기 →</button></div></section>" + kwCritSampleHtml();
+    kwCritSampleHtml();
 }
 /* 지금 기준으로 1~5위 — 씨앗마다 바뀐 결과를 바로 본다 */
 function kwCritSampleHtml(){
   var sd = seedsOf(); if(!sd.length || !part("kw")) return "";
-  return "<section class=\"card\"><div class=\"card-h\"><h3>지금 기준으로 씨앗마다 1~5위</h3></div><div class=\"list\">" + sd.map(function(x){
+  return "<details class=\"wbox\"><summary><b>지금 기준으로 씨앗마다 1~5위</b></summary><div class=\"wbody\"><div class=\"list\">" + sd.map(function(x){
     var it = seedItems(x.word).filter(function(y){ return kwShown(y, x.word) }).slice(0, 5);
     return "<div class=\"it\"><div class=\"it-m\"><div class=\"it-h\"><i class=\"dot " + (x.kind === "상품" ? "p" : "i") + "\" style=\"display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;background:var(--" + (x.kind === "상품" ? "prod" : "iden") + ")\"></i><b>" + esc(x.word) + "</b></div>" +
       "<div class=\"it-d\">" + (it.map(function(y){ return esc(y.kw) + " <span class=\"num\">" + y.score + "점</span>" }).join(" · ") || "보이는 말이 없어요") + "</div></div>" +
-      "<button class=\"btn sm\" data-go=\"kw|seed=" + esc(x.word) + "\">보기</button></div>" }).join("") + "</div></section>";
+      "<button class=\"btn sm\" data-go=\"kw|seed=" + esc(x.word) + "\">보기</button></div>" }).join("") + "</div></div></details>";
 }
 function kwCritAct(k){
   var c = kwCrit(), o = { order: c.set ? c.order.slice() : undefined, off: Object.assign({}, c.off), far: c.far, minVol: c.minVol, minRel: c.minRel };
-  if(k === "reset"){ setS({ kwCrit: null }); return }
   var p = k.split(":");
   if(p[0] === "off") o.off[p[1]] = !o.off[p[1]];
   if(p[0] === "far") o.far = p[1];
@@ -1866,7 +1869,7 @@ function kwPullHtml(){
   var more = ui.pullMore || 8;
   return "<details class=\"wbox\"" + (ui.pullOpen ? " open" : "") + " data-wbox=\"_pull\"><summary><b>키워드에서 세부 단어 가져오기</b><span class=\"wsum\">★ · Claude 추천 · 씨앗마다 상위 말 " + pool.length + "개</span></summary><div class=\"wbody\">" +
     "<p class=\"it-d\">키워드 탭에서 찾은 말 중 씨앗 단어로 삼을 만한 말이에요. 넣을 곳(정체성 축 · 상품)을 누르면 씨앗 단어가 되고, 맥이 그 말로 다시 연관 검색어를 받아요.</p><div class=\"list\">" +
-    pool.slice(0, more).map(function(o){ return "<div class=\"it\"><div class=\"it-m\"><div class=\"it-h\"><b>" + esc(o.x.kw) + "</b> <span class=\"tag\">" + esc(o.why) + "</span> <span class=\"num muted\">월 " + fmt(o.x.total) + "</span></div>" + seedPickHtml(o.x.kw) + "</div></div>" }).join("") + "</div>" +
+    pool.slice(0, more).map(function(o){ return "<div class=\"it\"><div class=\"it-m\"><div class=\"it-h\"><b>" + esc(o.x.kw) + "</b> <span class=\"tag\">" + esc(o.why) + "</span> <span class=\"num muted\">월 " + fmt(o.x.total) + "</span></div>" + (ui.kwSeed === o.x.kw ? seedPickHtml(o.x.kw) : "") + "</div><button class=\"btn sm\" data-act=\"kwseed\" data-kw=\"" + esc(o.x.kw) + "\" aria-expanded=\"" + (ui.kwSeed === o.x.kw) + "\">" + (ui.kwSeed === o.x.kw ? "닫기" : "＋ 넣기") + "</button></div>" }).join("") + "</div>" +
     (pool.length > more ? "<div class=\"acts\"><button class=\"btn sm\" data-ui=\"pullMore=" + (more + 12) + "\">더 보기 (" + (pool.length - more) + "개)</button></div>" : "") + "</div></details>";
 }
 
@@ -1876,8 +1879,8 @@ function kwPullHtml(){
    단계 칸 = 번호 · 이름 · 무엇을 정하나 · 「지금」 한 줄 · 접힌 「바꾸기」(그 단계의 조절 칸). 각 단계 탭에는 dsLine(한 줄 + 「설계에서 바꾸기 →」)만 둔다.
    값은 그대로 그 단계의 ct.set 칸(seedSrc · kwCrit · anaOpt · recCrit · roles · rpOpt) — 템플릿은 그 칸들을 한 벌로 ct.set/_tpl 에 저장한다. */
 var DS = [
-  { id: "word", name: "단어 — 연관 검색어 받는 곳", what: "씨앗 단어마다 어디서 연관 검색어를 받을지", keys: ["seedSrc"],
-    sum: function(){ return (SEED_SRC.filter(function(o){ return o[0] === seedSrc() })[0] || [])[1] || "" }, body: function(){ return seedSrcHtml() } },
+  { id: "word", name: "단어 — 연관 검색어 받는 곳 · 나라", what: "씨앗 단어마다 어디서 · 어느 나라 기준으로 연관 검색어를 받을지", keys: ["seedSrc", "kwCountry"],
+    sum: function(){ return "연관 검색어 " + ({ naver: "네이버", google: "구글 트렌드", both: "네이버 + 구글 트렌드" }[seedSrc()] || seedSrc()) + " · 나라 " + kwCountryName(kwCountry()) }, body: function(){ return seedSrcHtml() + kwCountryHtml() } },
   { id: "kw", name: "키워드 — 순위 기준", what: "연관 검색어를 무엇으로 줄 세우고 무엇을 숨길지", keys: ["kwCrit"],
     sum: function(){ var c = kwCrit(), r = 0; return c.order.filter(function(id){ return !c.off[id] }).slice(0, 3).map(function(id){ return (++r) + " " + KWCRIT.filter(function(q){ return q.id === id })[0].name }).join(" · ") + (c.minVol ? " · 월 " + c.minVol + " 이상" : "") },
     body: function(){ return kwCritHtml() } },
@@ -1891,7 +1894,7 @@ var DS = [
     sum: function(){ var o = rpOpt(); return rpWords().length + "개 단어 · " + RP_SIDES.filter(function(x){ return o.sides[x.id] }).map(function(x){ return x.name }).join(" · ") + " · " + RP_REGION.filter(function(r){ return r[0] === o.region })[0][1] },
     body: function(){ return rpScopeHtml() } }
 ];
-var DS_KEYS = ["seedSrc", "kwCrit", "anaOpt", "recCrit", "roles", "rpOpt"];
+var DS_KEYS = ["seedSrc", "kwCountry", "kwCrit", "anaOpt", "recCrit", "roles", "rpOpt"];
 function dsStage(id){ return DS.filter(function(x){ return x.id === id })[0] }
 function dsChanged(st){ var c = SETS[cur] || {}; return st.keys.some(function(k){ return c[k] != null }) }
 /* 각 단계 탭 맨 위의 한 줄 — 모든 단계가 같은 모양 */
@@ -1936,8 +1939,8 @@ function designAct(name, el){
   if(name === "dsreset"){ var st = dsStage(v), p = {}; st.keys.forEach(function(k){ p[k] = null }); if(confirm("「" + st.name + "」을 기본값으로 되돌릴까요?")) setS(p); return true }
   if(name === "dsresetall"){ var p2 = {}; DS_KEYS.forEach(function(k){ p2[k] = null }); if(confirm(B().name + "의 설계를 전부 기본값으로 되돌릴까요?")) setS(p2); return true }
   if(name === "dsask"){ var inp = document.getElementById("ds-ask"), q = ((inp && inp.value) || "").trim(); if(!q){ if(inp) inp.focus(); return true }
-    ui.dsDraft = ""; if(window.BRAINY_CHAT) window.BRAINY_CHAT.ask("[설계 바꾸기] " + q + " — 지금 브랜드 설계를 읽고 set_design 도구로 바꾼 뒤, 무엇을 어떻게 바꿨는지 한 줄씩 알려 줘."); else alert("Brainy 대화를 열 수 없어요 — 로그인을 확인해 주세요."); render(); return true }
-  if(name === "tplsave"){ var ni = document.getElementById("tpl-name"), nm = ((ni && ni.value) || "").trim(); if(!nm){ alert("템플릿 이름을 적어 주세요."); if(ni) ni.focus(); return true }
+    ui.dsDraft = ""; if(window.BRAINY_CHAT) window.BRAINY_CHAT.ask("[설계] " + q);   // 어떻게 바꿀지는 대화 규칙(content-brainy.js rules)에 — 동욱 말만 보이게 else alert("Brainy 대화를 열 수 없어요 — 로그인을 확인해 주세요."); render(); return true }
+  if(name === "tplsave"){ var ni = document.getElementById("tpl-name"), nm = ((ni && ni.value) || ui.tplDraft || "").trim();   // Enter(한글 조합 끝)로 눌러도 쓰던 이름으로 if(!nm){ alert("템플릿 이름을 적어 주세요."); if(ni) ni.focus(); return true }
     var c = SETS[cur] || {}, vals = {}; DS_KEYS.forEach(function(k){ if(c[k] != null) vals[k] = JSON.parse(JSON.stringify(c[k])) });
     var list = tplList().filter(function(t){ return t.name !== nm }); list.unshift({ id: "t" + Date.now().toString(36), name: nm, from: B().name, at: new Date().toISOString(), values: vals });
     ui.tplDraft = ""; tplSave(list); toast("「" + nm + "」 템플릿을 저장했어요"); return true }
@@ -1951,6 +1954,7 @@ function designAct(name, el){
 function designState(){ var c = SETS[cur] || {}, o = {}; DS_KEYS.forEach(function(k){ o[k] = c[k] != null ? c[k] : "(기본)" }); return o }
 var DS_SCHEMA = [
   "seedSrc: \"naver\" | \"google\" | \"both\" — 연관 검색어 받는 곳",
+  "kwCountry: \"KR\"|\"US\"|\"JP\"|\"GB\"|\"TW\"|\"VN\"|\"\"(전 세계) — 구글 트렌드·유튜브 검색 나라",
   "kwCrit: {order: [\"rel\",\"vol\",\"ctr\",\"rise\",\"comp\"] 순서(위일수록 크게), off: {id: true 끄기}, far: \"mix\"|\"fold\"|\"hide\"(씨앗 글자 안 든 말), minVol: 0|10|100|1000, minRel: 0|1|50}",
   "anaOpt: {topic, wave, comments, fit: true|false(영상 주제·파동 대사·좋아요 많은 댓글·구매 욕구 검증), nCmt: 5|10|20, target: \"top\"|\"picked\", topN: 1|3|5}",
   "recCrit: {order: [\"ratio\",\"comment\",\"fit\",\"wave\",\"topic\",\"fresh\"] 순서, off: {id: true}, use: {fav, pin, seed, ref: true|false 재료}, favFirst: true|false, minRatio: 0|1|3|10}",
@@ -2331,7 +2335,7 @@ function render(){
   document.getElementById("nav").innerHTML = TABS.map(function(g, i){ var to = last[g.name] && g.subs.some(function(x){ return x[0] === last[g.name] }) ? last[g.name] : g.subs[0][0];
     return "<button role=\"tab\" class=\"" + (g === grp ? "on" : "") + "\" data-tab=\"" + to + "\"><span>" + (i + 1) + "</span>" + g.name + "</button>" }).join("");
   var sub = grp.subs.length > 1 ? "<div class=\"subnav\" role=\"tablist\">" + grp.subs.map(function(x){ return "<button role=\"tab\" class=\"" + (tab === x[0] ? "on" : "") + "\" data-tab=\"" + x[0] + "\">" + x[1] + "</button>" }).join("") + "</div>" : "";
-  var v0 = { sum: viewSum, brand: viewBrand, kw: viewKw, ref: viewRef, rec: viewRec, build: viewBuild, refpage: viewRefPage, claude: viewClaude, script: viewScript, design: viewDesign, tpl: viewTpl }[tab] || viewSum;
+  var v0 = { sum: viewSum, brand: viewBrand, kw: viewKw, kwall: viewKw, ref: viewRef, rec: viewRec, build: viewBuild, refpage: viewRefPage, claude: viewClaude, script: viewScript, design: viewDesign, tpl: viewTpl }[tab] || viewSum;
   ui.later = false;
   /* 초점 돌려주기는 앱 화면(#view) 안 칸만 — 구석 Brainy 대화창(#bc-text)에 쓰는 중에 맥 자료가 와서 다시 그리면, 그 칸의 커서를 다시 놓다가 한글 조합이 끊겨 글이 깨졌다 (2026-11-18 동욱: "대화창을 쓰면 글이 깨진다") */
   var act0 = document.activeElement; if(act0 && !document.getElementById("view").contains(act0)) act0 = null;
@@ -2449,7 +2453,7 @@ function act(name, el){
   if(name === "kwrec"){ kwRecSend(); return }   // 씨앗마다 Claude 키워드 추천
   if(name === "kwrecgo"){ kwRecGo(); return }   // 추천 키워드 ★ → 콘텐츠 검색   // 키워드 순위 기준 — 조절 · 우선
   if(name === "anaopt"){ var ao = anaOpt(), k3 = el.dataset.k, v3 = el.dataset.v;   // 영상 분석 조절
-    if(k3 === "topN"){ ao.topN = +v3; ao.target = "top" } else if(k3 === "target") ao.target = v3; else ao[k3] = !ao[k3];
+    if(k3 === "topN"){ ao.topN = +v3; ao.target = "top" } else if(k3 === "target") ao.target = v3; else if(k3 === "nCmt") ao.nCmt = +v3; else ao[k3] = !ao[k3];   // 댓글 수는 숫자 (2026-11-18 검증: 켜고 끄기처럼 뒤집어 false 가 저장되던 것)
     setS({ anaOpt: ao }); return }
   if(name === "analyze"){ var ao2 = anaOpt(), w2 = topicWords(), vs = anaTargets(w2).filter(function(x){ return !anaOf(x.vid) }); if(!vs.length) return;
     var parts = ANA_PARTS.filter(function(p){ return ao2[p[0]] });
@@ -2564,6 +2568,7 @@ render();
         "- 무엇을 근거로 답했는지(어느 파일·어느 칸) 한 줄 붙인다. 숫자·사례는 볼트에 있는 것만 쓴다.\n" +
         "- 동욱이 이 앱 일(추천·대본·키워드·참고 페이지 등)을 시키면, 맥에서 답하는 중이면 그 스킬 규칙대로 바로 해서 볼트 파일에 쓰고(맥 동기화가 앱에 올린다) 무엇을 어디에 했는지 말한다. 클라우드에서 답하는 중이면 할 수 없다고 말하고, 「⚙ Claude 모드」에서 대화를 「맥에서」로 두면 된다고 알려 준다.\n" +
         "- 답에는 추천 번호(P1·K1)·파일 속 약어 대신 제목과 쉬운 말을 쓴다. 숏폼은 하지 않기로 했다(미드폼·롱폼만, 11-16) — 옛 자료에 숏폼이 있어도 권하지 않는다.\n" +
+        "- 「[설계] …」로 온 말은 설계 바꾸기 부탁이다: [지금 앱 상태]의 지금 설계를 읽고 set_design 도구로 바꾼 뒤, 무엇을 어떻게 바꿨는지(전 → 후) 한 줄씩 말한다. 그 칸에 없는 말이면 바꾸지 말고 되묻는다.\n" +
         "- 「보여 줘·제안해 줘」는 보여 주기까지. 쓰기는 「넣어·해·반영해」를 들은 뒤.";
     },
     editNote: "고친 판은 5~15분 뒤 준비되고, 「적용해 줘」 하면 원본에 들어가요. 이 주소에 실제로 바뀌어 보이려면 맥의 Claude에게 「콘텐츠 기획 올려 줘」라고 한 번 더 말해 주세요.",
@@ -2583,8 +2588,8 @@ render();
       return L.join("\n");
     },
     tools: [
-      { name: "open_tab", description: "콘텐츠 기획 앱의 탭을 연다: sum(한눈에) · brand(브랜드) · kw(키워드) · ref(콘텐츠) · rec(추천) · build(구축) · refpage(참고 페이지) · script(대본) · design(설계 — 단계별 기준) · tpl(템플릿) · claude(Claude 모드).",
-        inputSchema: { type: "object", properties: { tab: { type: "string", enum: ["sum", "brand", "kw", "ref", "rec", "build", "refpage", "script", "design", "tpl", "claude"] } }, required: ["tab"] },
+      { name: "open_tab", description: "콘텐츠 기획 앱의 탭을 연다: sum(한눈에) · brand(브랜드) · kw(키워드 › 씨앗별 검색어) · kwall(키워드 › 전체 키워드) · ref(콘텐츠) · rec(추천) · build(구축) · refpage(참고 페이지) · script(대본) · design(설계 — 단계별 기준) · tpl(템플릿) · claude(Claude 모드).",
+        inputSchema: { type: "object", properties: { tab: { type: "string", enum: ["sum", "brand", "kw", "kwall", "ref", "rec", "build", "refpage", "script", "design", "tpl", "claude"] } }, required: ["tab"] },
         execute: function (i) { tab = i.tab; save("ct.tab", tab); window.scrollTo(0, 0); render(); return subName(i.tab); } },
       { name: "set_design", description: "지금 브랜드의 설계(단계별 자동 추천 기준)를 바꾼다. 동욱이 설정을 바꿔 달라고 분명히 말했을 때만. name 은 seedSrc · kwCrit · anaOpt · recCrit · roles · rpOpt 중 하나, value 는 [지금 앱 상태]의 「설계 칸과 값 모양」대로 그 칸 전체 값(바꾸지 않는 부분도 지금 값 그대로 넣는다). null 이면 기본값으로. 바꾼 뒤 무엇이 어떻게 바뀌었는지 한 줄씩 말한다.",
         inputSchema: { type: "object", properties: { name: { type: "string", enum: DS_KEYS }, value: {} }, required: ["name", "value"] },
