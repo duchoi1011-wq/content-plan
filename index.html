@@ -51,8 +51,8 @@ header>.brand{padding-right:min(46vw,190px)}
 <body>
 <span id="rtdot" aria-hidden="true"></span>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script>window.BRAINY_VERSION = "7689b3fe85"; window.BRAINY_APP = {key: "content", name: "콘텐츠 기획", icon: "ct-icon-192.png", sub: "키워드와 트렌드로 주제를 고르고 대본 초안까지", colls: ["ct.data", "ct.set", "cmd", "bchat"]};</script>
-<script src="shim.js?v=7689b3fe85"></script>
+<script>window.BRAINY_VERSION = "e17579676b"; window.BRAINY_APP = {key: "content", name: "콘텐츠 기획", icon: "ct-icon-192.png", sub: "키워드와 트렌드로 주제를 고르고 대본 초안까지", colls: ["ct.data", "ct.set", "cmd", "bchat"]};</script>
+<script src="shim.js?v=e17579676b"></script>
 <script>document.addEventListener("click", function (e) { var b = e.target.closest && e.target.closest("[data-brainy=out]"); if (b && confirm("로그아웃할까요?")) window.BRAINY.signOut(); });</script>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="apple-mobile-web-app-title" content="콘텐츠 기획">
@@ -429,7 +429,7 @@ var CMDS = [];                      // 이 앱이 보낸 명령 (최근 것부�
 var cur = new URLSearchParams(location.search).get("b") || load("ct.brand", "");     // 지금 브랜드
 var WANT = cur; if(new URLSearchParams(location.search).get("b")) save("ct.brand", cur);   // 열려고 한 브랜드 — 자료가 덜 들어온 순간 다른 브랜드로 바뀌어도, 들어오면 되돌린다 (2026-11-18 검증) — 주소 ?b=<id> 로 바로 연다 (브랜드마다 홈 화면 바로가기를 따로 둘 수 있다)
 var tab = load("ct.tab", "sum"); if(["design", "tpl", "claude", "hist", "imp"].indexOf(tab) >= 0) tab = "sum";   // 설계 · 기록 칸은 ⚙ 설정 창으로 옮김 (content-settings.js)
-var ui = { kwKind: "all", kwMore: 60, refRole: "all", refSort: "mix", refBuyer: true, refView: "videos", refMore: 20, bdView: load("ct.bdView", "cards"), bdDoc: "", hide: load("ct.hide", {}) };
+var ui = { kwKind: "all", kwMore: 60, refRole: "all", refSort: "mix", refBuyer: true, refView: "", refMore: 20, bdView: load("ct.bdView", "cards"), bdDoc: "", hide: load("ct.hide", {}) };
 /* 탭은 넷 — 한 탭 안을 칸(subs)으로 나눈다 (2026-11-17 동욱: "한눈에·브랜드는 한 탭 안에 나누고, 키워드는 따로, 콘텐츠·추천 한 탭, 구축·대본 한 탭").
    tab 변수는 칸 id(sum·brand·kw·ref·rec·build·refpage·script) 그대로 — 위 탭을 누르면 그 탭에서 마지막으로 본 칸이 열린다 */
 var TABS = [
@@ -453,6 +453,7 @@ function day(iso){ return String(iso || "").slice(0, 10) }
 function brands(){ return Object.keys(RAW).filter(function(id){ return id.indexOf(".") < 0 && RAW[id].name }).map(function(id){ return RAW[id] }).sort(function(a, b){ return (a.order || 9) - (b.order || 9) }) }
 function pickBrand(id){
   cur = id; WANT = id; save("ct.brand", cur);
+  ui.refView = "";   // 콘텐츠 첫 칸은 브랜드마다 다시 고른다 (레퍼런스가 있으면 레퍼런스 영상, 없으면 공감 댓글)
   try{ history.replaceState(null, "", location.pathname + "?b=" + encodeURIComponent(cur) + location.hash) }catch(e){}
   render();
 }
@@ -937,7 +938,7 @@ function viewRef(){
   var items = r ? r.items.filter(isLong) : [], nShort = r ? r.items.length - items.length : 0;
   var live = part("live"), chan = part("chan");
   var sr = part("search"), nFav = Object.keys((SETS[cur] || {}).favc || {}).length;
-  if(ui.refView === "videos" && !items.length) ui.refView = likedCount() ? "liked" : sr && sr.items && sr.items.length ? "search" : "videos";   // 레퍼런스가 없는 브랜드는 빈 칸 대신 공감 댓글·찾은 콘텐츠부터 (2026-11-28 동욱 키우고: "안 나오는데?")
+  if(!ui.refView) ui.refView = items.length ? "videos" : likedCount() ? "liked" : sr && sr.items && sr.items.length ? "search" : "videos";   // 처음 열 때만 — 레퍼런스가 없는 브랜드는 빈 칸 대신 공감 댓글·찾은 콘텐츠부터 (2026-11-28 동욱 키우고: "안 나오는데?"). 칩을 눌러 고른 칸은 그대로   // 레퍼런스가 없는 브랜드는 빈 칸 대신 공감 댓글·찾은 콘텐츠부터 (2026-11-28 동욱 키우고: "안 나오는데?")
   var h = "<div class=\"chips\"><button class=\"chip" + (ui.refView === "search" ? " on" : "") + "\" data-ui=\"refView=search\">키워드로 찾은 콘텐츠<span>" + (sr && sr.items ? sr.items.length : 0) + "</span></button>" +
     "<button class=\"chip" + (ui.refView === "liked" ? " on" : "") + "\" data-ui=\"refView=liked\">💬 공감 댓글<span>" + likedCount() + "</span></button>" +   // 키워드로 찾은 영상의 댓글, 공감 순 (content-likes.js)
     "<button class=\"chip" + (ui.refView === "ideas" ? " on" : "") + "\" data-ui=\"refView=ideas\">💡 아이디어<span>" + (((part("ideas") || {}).items) || []).length + "</span></button>" +
