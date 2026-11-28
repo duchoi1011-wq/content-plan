@@ -51,8 +51,8 @@ header>.brand{padding-right:min(46vw,190px)}
 <body>
 <span id="rtdot" aria-hidden="true"></span>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script>window.BRAINY_VERSION = "abe3a1a22a"; window.BRAINY_APP = {key: "content", name: "콘텐츠 기획", icon: "ct-icon-192.png", sub: "키워드와 트렌드로 주제를 고르고 대본 초안까지", colls: ["ct.data", "ct.set", "cmd", "bchat"]};</script>
-<script src="shim.js?v=abe3a1a22a"></script>
+<script>window.BRAINY_VERSION = "b084ccc58a"; window.BRAINY_APP = {key: "content", name: "콘텐츠 기획", icon: "ct-icon-192.png", sub: "키워드와 트렌드로 주제를 고르고 대본 초안까지", colls: ["ct.data", "ct.set", "cmd", "bchat"]};</script>
+<script src="shim.js?v=b084ccc58a"></script>
 <script>document.addEventListener("click", function (e) { var b = e.target.closest && e.target.closest("[data-brainy=out]"); if (b && confirm("로그아웃할까요?")) window.BRAINY.signOut(); });</script>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="apple-mobile-web-app-title" content="콘텐츠 기획">
@@ -3351,7 +3351,7 @@ render();
   /* 새 대화 — 지금 대화는 지난 대화로 (↺ · 앱 단추 start) */
   function newChat() { if (ctl) ctl.abort(); archive(); turns = []; showHist = false; try { localStorage.removeItem(SID); } catch (e) {} keep(); render(); }
   /* start: 새 대화로 열고 바로 보낸다 — 지난 대화가 같이 가지 않게 (광고 실습 「▶ Brainy 진행」 · 2026-11-28 동욱 「응, 해」) */
-  window.BRAINY_CHAT = { open: open, close: close, ask: function (q) { open(); go(q); }, start: function (q) { newChat(); viewPast = -1; open(); go(q); }, fill: fill, busy: function () { return busy; } };   // busy: 답하는 중이면 go() 가 조용히 넘기므로 앱 단추가 먼저 묻는다 (광고 실습 11-28 검증 중간)   // busy: 답하는 중이면 go() 가 조용히 넘기므로 앱 단추가 먼저 묻는다 (광고 실습 11-28 검증 중간)
+  window.BRAINY_CHAT = { open: open, close: close, ask: function (q) { open(); go(q); }, start: function (q) { newChat(); viewPast = -1; open(); go(q); }, fill: fill, busy: function () { return busy; } };   // busy: 답하는 중이면 go() 가 조용히 넘기므로 앱 단추가 먼저 묻는다 (광고 실습 11-28 검증 중간)
   fab.addEventListener("click", open);
   box.addEventListener("click", function (e) {
     var up = e.target.closest("[data-bc-unpic]");
