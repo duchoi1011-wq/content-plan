@@ -51,8 +51,8 @@ header>.brand{padding-right:min(46vw,190px)}
 <body>
 <span id="rtdot" aria-hidden="true"></span>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script>window.BRAINY_VERSION = "9bb03f63c5"; window.BRAINY_APP = {key: "content", name: "콘텐츠 기획", icon: "ct-icon-192.png", sub: "키워드와 트렌드로 주제를 고르고 대본 초안까지", colls: ["ct.data", "ct.set", "cmd", "bchat"]};</script>
-<script src="shim.js?v=9bb03f63c5"></script>
+<script>window.BRAINY_VERSION = "e955142877"; window.BRAINY_APP = {key: "content", name: "콘텐츠 기획", icon: "ct-icon-192.png", sub: "키워드와 트렌드로 주제를 고르고 대본 초안까지", colls: ["ct.data", "ct.set", "cmd", "bchat"]};</script>
+<script src="shim.js?v=e955142877"></script>
 <script>document.addEventListener("click", function (e) { var b = e.target.closest && e.target.closest("[data-brainy=out]"); if (b && confirm("로그아웃할까요?")) window.BRAINY.signOut(); });</script>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="apple-mobile-web-app-title" content="콘텐츠 기획">
@@ -2373,8 +2373,10 @@ function likedCount(){ return likedRows().length }
 function likedBusy(){ var r = (SETS[cur] || {}).cmtReq, d = part("cmts"); return !!(r && r.what === "search" && (!d || Date.parse(d.updatedAt) < Date.parse(r.at) - 5000)) }
 /* 안 푼 댓글 수 — 맥 cmtx-todo 와 같은 범위(공감 상위 40 + 키워드마다 5) */
 function cmtxTodo(){
-  var all = likedRows(), kws = {}, seen = {}, n = 0, pick = all.slice(0, 40);
-  all.forEach(function(r){ kws[r.kw] = (kws[r.kw] || 0) + 1; if(kws[r.kw] <= 5) pick.push(r) });
+  var rel = ui.lkRel, fit = ui.lkFit; ui.lkRel = ui.lkFit = false;   // 거르기와 상관없이 맥과 같은 범위
+  var pick = likedRows().slice(0, 40), kws = {}, seen = {}, n = 0;
+  (((part("search") || {}).items) || []).forEach(function(v){ if(kws[v.kw]) return; kws[v.kw] = 1; pick = pick.concat(likedRows(v.kw).slice(0, 5)) });   // 키워드마다 따로 센 상위 5 (맥 cmtx_todo 와 같게, 11-28 검증)
+  ui.lkRel = rel; ui.lkFit = fit;
   pick.forEach(function(r){ var k = lkKey(r); if(seen[k]) return; seen[k] = 1; if(!cmtxOf(r).ann) n++ });
   return n;
 }
@@ -3277,12 +3279,12 @@ render();
     '<button type="button" class="bc-ic" data-bc="hist" title="지난 대화" aria-label="지난 대화">🕘</button>' +
     '<button type="button" class="bc-ic" data-bc="new" title="새 대화 (지금 대화는 지난 대화로)" aria-label="새 대화">↺</button>' +
     '<button type="button" class="bc-ic" data-bc="close" title="작게 (Esc)" aria-label="작게">⌄</button></div>' +
-    (PICK ? P.modelRow() : "") +
+    (PICK ? P.modelRow() : HOOK.bar ? '<div class="bc-xbar" id="bc-xbar">' + HOOK.bar() + "</div>" : "") +   // HOOK.bar: 앱이 정하는 윗줄(전체 현황 — 받는 사람·엔진 단추). 모델 줄과 같은 자리
     '<div class="bc-msgs" id="bc-msgs" aria-live="polite"></div>' +
     '<div class="bc-pics" id="bc-pics" hidden></div>' +
     '<div class="bc-in">' + (LOCAL ? "" : '<button type="button" class="bc-att" id="bc-att" title="사진 넣기 (붙여 넣기도 돼요)" aria-label="사진 넣기">📎</button><input type="file" id="bc-file" accept="image/*" multiple hidden>') +
     '<textarea id="bc-text" rows="1" placeholder="메시지 보내기"></textarea><button type="button" class="bc-send" id="bc-send" aria-label="보내기">↑</button></div>';
-  if (PICK) box.classList.add("bc-has-m");
+  if (PICK || HOOK.bar) box.classList.add("bc-has-m");
   document.body.appendChild(fab); document.body.appendChild(box);
   var msgs = box.querySelector("#bc-msgs"), text = box.querySelector("#bc-text"), send = box.querySelector("#bc-send");
   /* 사진 보내기 (클라우드 Brainy 만 — 받침의 sample 이 images 를 받아 JPEG 로 줄여 보낸다, 한 번에 PIC_MAX 장).
@@ -3302,7 +3304,8 @@ render();
     picsBox.innerHTML = pics.map(function (p, i) { return '<span class="bc-pic"><img src="' + esc(p.url) + '" alt="보낼 사진 ' + (i + 1) + '"><button type="button" data-bc-unpic="' + i + '" aria-label="이 사진 빼기">✕</button></span>'; }).join("");
     if (att) att.disabled = pics.length >= PIC_MAX;
   }
-  box.querySelector("#bc-sub").textContent = NAME + (LOCAL ? " · 물어보거나, 말하면 바로 고쳐요" : " · 물어보거나 고쳐 달라고 하세요");
+  function paintSub() { if (HOOK.title) box.querySelector(".bc-who b").textContent = String(HOOK.title()); box.querySelector("#bc-sub").textContent = HOOK.sub ? String(HOOK.sub()) : NAME + (LOCAL ? " · 물어보거나, 말하면 바로 고쳐요" : " · 물어보거나 고쳐 달라고 하세요"); }   // HOOK.title · HOOK.sub: 앱이 정하는 제목·아랫글 (전체 현황 — 지금 받는 사람·엔진)
+  paintSub();
 
   var CHIPS = (HOOK.chips || ["이 앱에서 ○○ 고쳐 줘"]).concat(LOCAL ? [] : ["맡긴 앱 고치기 어떻게 됐어?"]);
   function render() {
@@ -3399,7 +3402,7 @@ render();
   /* 새 대화 — 지금 대화는 지난 대화로 (↺ · 앱 단추 start) */
   function newChat() { if (ctl) ctl.abort(); archive(); turns = []; showHist = false; try { localStorage.removeItem(SID); } catch (e) {} keep(); render(); }
   /* start: 새 대화로 열고 바로 보낸다 — 지난 대화가 같이 가지 않게 (광고 실습 「▶ Brainy 진행」 · 2026-11-28 동욱 「응, 해」) */
-  window.BRAINY_CHAT = { open: open, close: close, ask: function (q) { open(); go(q); }, start: function (q) { newChat(); viewPast = -1; open(); go(q); }, fill: fill, busy: function () { return busy; } };   // busy: 답하는 중이면 go() 가 조용히 넘기므로 앱 단추가 먼저 묻는다 (광고 실습 11-28 검증 중간)
+  window.BRAINY_CHAT = { open: open, close: close, ask: function (q) { open(); go(q); }, start: function (q) { newChat(); viewPast = -1; open(); go(q); }, fill: fill, busy: function () { return busy; }, repaint: function () { var el = box.querySelector("#bc-xbar"); if (el && HOOK.bar) el.innerHTML = HOOK.bar(); paintSub(); } };   // repaint: 앱이 받는 사람·엔진을 바꾼 뒤 윗줄·아랫글을 다시 그린다   // busy: 답하는 중이면 go() 가 조용히 넘기므로 앱 단추가 먼저 묻는다 (광고 실습 11-28 검증 중간)
   fab.addEventListener("click", open);
   box.addEventListener("click", function (e) {
     var up = e.target.closest("[data-bc-unpic]");
