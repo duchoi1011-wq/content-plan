@@ -51,8 +51,8 @@ header>.brand{padding-right:min(46vw,190px)}
 <body>
 <span id="rtdot" aria-hidden="true"></span>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script>window.BRAINY_VERSION = "85b506578e"; window.BRAINY_APP = {key: "content", name: "콘텐츠 기획", icon: "ct-icon-192.png", sub: "키워드와 트렌드로 주제를 고르고 대본 초안까지", colls: ["ct.data", "ct.set", "cmd", "bchat"]};</script>
-<script src="shim.js?v=85b506578e"></script>
+<script>window.BRAINY_VERSION = "4b80f202c7"; window.BRAINY_APP = {key: "content", name: "콘텐츠 기획", icon: "ct-icon-192.png", sub: "키워드와 트렌드로 주제를 고르고 대본 초안까지", colls: ["ct.data", "ct.set", "cmd", "bchat"]};</script>
+<script src="shim.js?v=4b80f202c7"></script>
 <script>document.addEventListener("click", function (e) { var b = e.target.closest && e.target.closest("[data-brainy=out]"); if (b && confirm("로그아웃할까요?")) window.BRAINY.signOut(); });</script>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="apple-mobile-web-app-title" content="콘텐츠 기획">
@@ -114,6 +114,7 @@ details.help{margin:2px 0 6px}details.help>summary{font-size:13px;font-weight:60
 html.setm-open,html.setm-open body{overflow:hidden}
 @media (max-width:760px){#setm .setm{left:0;top:0;transform:none;width:100vw;height:100vh;height:100dvh;border-radius:0}#setm .setm-b{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}#setm .setm-nav{border-right:0;border-bottom:1px solid var(--line);display:flex;gap:6px;overflow-x:auto;padding:8px 12px;align-items:center}#setm .setm-nav input,#setm .sg{display:none}#setm .si{width:auto;flex:none;white-space:nowrap;border:1px solid var(--line);border-radius:999px;min-height:44px;padding:6px 14px}#setm .setm-nav::after{content:"";flex:none;width:8px}#setm .setm-c{padding:14px 16px 40px}}
 .nbq{display:block;margin:0 0 12px}.nbq>span{display:block;margin:0 0 4px;font-weight:600;font-size:14px}
+.lk-t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hday{margin:12px 0 2px;font-size:13px;font-weight:700;color:var(--muted)}.list .it.on{outline:2px solid var(--accent);outline-offset:-2px}
 .mk.imp[aria-pressed=true]{background:#6B4FD8;border-color:#6B4FD8;color:#fff}
 .runs{margin:0 0 14px}.runs>summary{padding:8px 4px}
@@ -2345,6 +2346,7 @@ function nbChange(el){ var a = Object.assign({}, nbState().answers); var v = el.
 function likedRows(){
   var sr = ((part("search") || {}).items) || [], cm = ((part("cmts") || {}).items) || {}, seen = {}, out = [];
   sr.forEach(function(v){
+    if(ui.lkRel && !relOf(v)) return;   // 「키워드와 맞는 영상만」 — 제목·설명에 키워드가 든 영상
     ((cm[v.vid] || {}).comments || []).forEach(function(c){
       var key = String(c.text || "").replace(/\s+/g, " ").trim(); if(!key || seen[key]) return; seen[key] = 1;
       out.push({ text: c.text, likes: c.likes || 0, replies: c.replies || 0, at: c.at, vid: v.vid, title: v.title, channel: v.channel, kw: v.kw });
@@ -2362,15 +2364,15 @@ function likedHtml(){
   var k = ui.lkKw !== "" && ui.lkKw != null && byKw[String(ui.lkKw)] ? String(ui.lkKw) : "", list = k ? byKw[k] : all, more = ui.lkMore || 30;
   var got = sr.filter(function(v){ return cm[v.vid] && !cm[v.vid].error }).length, off = sr.filter(function(v){ return cm[v.vid] && cm[v.vid].error }).length, wait = sr.length - got - off, busy = likedBusy();
   var h = "<section class=\"card\"><div class=\"card-h\"><h3>💬 공감 댓글</h3><span class=\"n\">댓글 " + all.length + "개 · 영상 " + got + "/" + sr.length + "</span></div>" +
-    "<p class=\"lead\">키워드로 찾은 영상들의 댓글을 <b>공감(좋아요) 많은 순</b>으로만 줄 세웠어요 — 구독자·조회수·영상 점수는 보지 않아요. 영상마다 좋아요 많은 댓글 5개(댓글 100개 중)를 받아 모았어요.</p>" +
-    "<div class=\"acts\"><button class=\"btn\" data-act=\"likedreq\"" + (busy ? " disabled" : "") + ">" + (busy ? "맥이 댓글 받는 중…" : wait ? "안 받은 영상 " + wait + "개 댓글 받기" : "댓글 다시 받기") + "</button>" +
+    "<p class=\"lead\">키워드로 찾은 영상들의 댓글을 <b>공감(좋아요) 많은 순</b>으로만 — 구독자·조회수는 보지 않아요. 영상마다 좋아요 많은 5개를 모았어요.</p>" +
+    "<div class=\"acts\"><button class=\"chip" + (ui.lkRel ? " on" : "") + "\" data-ui=\"lkRel=" + !ui.lkRel + "\" title=\"제목·설명에 키워드가 든 영상의 댓글만\">" + (ui.lkRel ? "✓ " : "") + "키워드와 맞는 영상만</button><button class=\"btn sm\" data-act=\"likedreq\"" + (busy ? " disabled" : "") + ">" + (busy ? "맥이 댓글 받는 중…" : wait ? "안 받은 영상 " + wait + "개 댓글 받기" : "댓글 다시 받기") + "</button>" +
     (off ? "<span class=\"lead\" style=\"margin:0\">댓글 막힘 · 못 받음 " + off + "개</span>" : "") + "</div></section>";
   if(!all.length) return h + "<section class=\"card\"><p class=\"empty\">" + (busy ? "맥이 댓글을 받는 중이에요 — 1~2분 걸려요." : "아직 받은 댓글이 없어요. 위 버튼을 누르면 맥이 받아 와요.") + "</p></section>";
   /* 정리 — 키워드마다 공감 1위 */
   h += "<section class=\"card\"><div class=\"card-h\"><h3>키워드마다 공감 1위</h3><span class=\"n\">" + kws.length + "개 키워드</span></div><div class=\"list\">" +
     kws.slice().sort(function(a, b){ return byKw[b][0].likes - byKw[a][0].likes }).map(function(kw){ var r = byKw[kw][0];
       return "<div class=\"it\"><span class=\"num\">👍 " + fmt(r.likes) + "</span><div class=\"it-m\"><div class=\"it-h\"><span class=\"tag\">" + esc(kw) + "</span> " + esc(String(r.text).replace(/\s+/g, " ").slice(0, 90)) + (String(r.text).length > 90 ? "…" : "") + "</div>" +
-        "<div class=\"it-d\"><a href=\"https://www.youtube.com/watch?v=" + esc(r.vid) + "\" target=\"_blank\" rel=\"noopener\">" + esc(r.title || r.vid) + "</a></div></div>" +
+        "<div class=\"it-d lk-t\"><a href=\"https://www.youtube.com/watch?v=" + esc(r.vid) + "\" target=\"_blank\" rel=\"noopener\">" + esc(r.title || r.vid) + "</a></div></div>" +
         "<button class=\"btn sm\" data-ui=\"lkKw=" + esc(kw) + "\">이 키워드 " + byKw[kw].length + "개</button></div>" }).join("") + "</div></section>";
   /* 전체 순위 — 키워드로 거르기 */
   h += "<section class=\"card\"><div class=\"card-h\"><h3>공감 순위" + (k ? " · 「" + esc(k) + "」" : "") + "</h3><span class=\"n\">" + list.length + "개</span></div>" +
@@ -2379,7 +2381,7 @@ function likedHtml(){
     "<div class=\"list lk\">" + list.slice(0, more).map(function(r, i){ var long = String(r.text).length > 160;
       return "<div class=\"it\"><span class=\"num muted\">" + (i + 1) + "</span><div class=\"it-m\"><div class=\"it-h\"><b class=\"num\">👍 " + fmt(r.likes) + "</b>" + (r.replies ? " <span class=\"muted\">💬 " + fmt(r.replies) + "</span>" : "") + " <span class=\"tag\">" + esc(r.kw) + "</span></div>" +
         (long ? "<details><summary>" + esc(String(r.text).slice(0, 160)) + "…</summary><div class=\"pre\">" + esc(r.text) + "</div></details>" : "<div class=\"pre\">" + esc(r.text) + "</div>") +
-        "<div class=\"it-d\"><a href=\"https://www.youtube.com/watch?v=" + esc(r.vid) + "\" target=\"_blank\" rel=\"noopener\">" + esc(r.title || r.vid) + "</a> · " + esc(r.channel || "") + (r.at ? " · " + esc(r.at) : "") + "</div></div></div>" }).join("") + "</div>" +
+        "<div class=\"it-d lk-t\"><a href=\"https://www.youtube.com/watch?v=" + esc(r.vid) + "\" target=\"_blank\" rel=\"noopener\">" + esc(r.title || r.vid) + "</a> · " + esc(r.channel || "") + (r.at ? " · " + esc(r.at) : "") + "</div></div></div>" }).join("") + "</div>" +
     (list.length > more ? "<div class=\"acts\"><button class=\"btn sm\" data-ui=\"lkMore=" + (more + 30) + "\">더 보기 (" + (list.length - more) + "개)</button></div>" : "") + "</section>";
   return h;
 }
