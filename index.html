@@ -51,8 +51,8 @@ header>.brand{padding-right:min(46vw,190px)}
 <body>
 <span id="rtdot" aria-hidden="true"></span>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script>window.BRAINY_VERSION = "6364a580ba"; window.BRAINY_APP = {key: "content", name: "콘텐츠 기획", icon: "ct-icon-192.png", sub: "키워드와 트렌드로 주제를 고르고 대본 초안까지", colls: ["ct.data", "ct.set", "cmd", "bchat"]};</script>
-<script src="shim.js?v=6364a580ba"></script>
+<script>window.BRAINY_VERSION = "85b506578e"; window.BRAINY_APP = {key: "content", name: "콘텐츠 기획", icon: "ct-icon-192.png", sub: "키워드와 트렌드로 주제를 고르고 대본 초안까지", colls: ["ct.data", "ct.set", "cmd", "bchat"]};</script>
+<script src="shim.js?v=85b506578e"></script>
 <script>document.addEventListener("click", function (e) { var b = e.target.closest && e.target.closest("[data-brainy=out]"); if (b && confirm("로그아웃할까요?")) window.BRAINY.signOut(); });</script>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="apple-mobile-web-app-title" content="콘텐츠 기획">
@@ -937,6 +937,7 @@ function viewRef(){
   var live = part("live"), chan = part("chan");
   var sr = part("search"), nFav = Object.keys((SETS[cur] || {}).favc || {}).length;
   var h = "<div class=\"chips\"><button class=\"chip" + (ui.refView === "search" ? " on" : "") + "\" data-ui=\"refView=search\">키워드로 찾은 콘텐츠<span>" + (sr && sr.items ? sr.items.length : 0) + "</span></button>" +
+    "<button class=\"chip" + (ui.refView === "liked" ? " on" : "") + "\" data-ui=\"refView=liked\">💬 공감 댓글<span>" + likedCount() + "</span></button>" +   // 키워드로 찾은 영상의 댓글, 공감 순 (content-likes.js)
     "<button class=\"chip" + (ui.refView === "ideas" ? " on" : "") + "\" data-ui=\"refView=ideas\">💡 아이디어<span>" + (((part("ideas") || {}).items) || []).length + "</span></button>" +
     "<button class=\"chip" + (ui.refView === "fav" ? " on" : "") + "\" data-ui=\"refView=fav\">☆ 즐겨찾기<span>" + nFav + "</span></button>" +
     "<button class=\"chip" + (ui.refView === "videos" ? " on" : "") + "\" data-ui=\"refView=videos\">레퍼런스 영상<span>" + items.length + "</span></button>" +
@@ -946,6 +947,7 @@ function viewRef(){
     "<p class=\"lead\">반응 최신화 " + (live ? day(live.updatedAt) : "아직 안 함") + " · 채널 새 영상 " + (chan ? day(chan.updatedAt) : "아직 안 함") + "</p>";
   if(ui.refView === "chans") return h + chansHtml(b, chan);
   if(ui.refView === "search") return h + searchResultsHtml();
+  if(ui.refView === "liked") return h + likedHtml();
   if(ui.refView === "fav") return h + favListHtml();
   if(ui.refView === "ideas") return h + ideasHtml();
   if(!r) return h + "<p class=\"empty\">아직 레퍼런스가 없어요. 키워드 탭에서 조사를 돌리면 채워져요.</p>";
@@ -2335,6 +2337,53 @@ function nbAct(name){
 function nbInput(el){ ui.nbDraft = Object.assign({}, ui.nbDraft); ui.nbDraft[el.dataset.nbq] = el.value }
 function nbChange(el){ var a = Object.assign({}, nbState().answers); var v = el.value.trim(); if(v) a[el.dataset.nbq] = el.value; else delete a[el.dataset.nbq]; setTimeout(function(){ nbSave({ answers: a }); render() }, 0) }   // 저장도 그리기도 다음 칸으로 커서가 옮겨 간 뒤 — 저장 알림이 바로 다시 그려 Tab 이 갈 칸을 잃었다(2026-11-18 검증) — 칸마다 id(nbq-…)가 있어 render 가 그 칸에 커서를 돌려준다 (2026-11-18 검증: Tab 뒤 친 글이 사라짐)
 
+/* ── 콘텐츠 › 💬 공감 댓글 — 키워드로 찾은 영상들의 댓글을 공감(좋아요) 많은 순으로 ──
+   2026-11-28 동욱: "순수하게 키워드에서 뽑은 콘텐츠에서 댓글로 공감을 가장 많이 받은 게 뭔지 정리해서 뽑아 주는 칸.
+   구독자 수 대비 조회수 이런 거 상관없이. 키워드로 뽑은 콘텐츠에서 공감순을 가장 많이 받은 댓글을 찾는 거야".
+   영상 = part("search")(키워드로 찾은 콘텐츠), 댓글 = part("cmts")(영상마다 좋아요 많은 5개 — 맥 content_app.py cmts --search 가
+   콘텐츠 검색이 끝나면 저절로 받음). 줄 세우기는 댓글 좋아요 수 하나뿐 — 영상 점수·구독자·조회수는 보지 않는다. */
+function likedRows(){
+  var sr = ((part("search") || {}).items) || [], cm = ((part("cmts") || {}).items) || {}, seen = {}, out = [];
+  sr.forEach(function(v){
+    ((cm[v.vid] || {}).comments || []).forEach(function(c){
+      var key = String(c.text || "").replace(/\s+/g, " ").trim(); if(!key || seen[key]) return; seen[key] = 1;
+      out.push({ text: c.text, likes: c.likes || 0, replies: c.replies || 0, at: c.at, vid: v.vid, title: v.title, channel: v.channel, kw: v.kw });
+    });
+  });
+  return out.sort(function(a, b){ return b.likes - a.likes });
+}
+function likedCount(){ return likedRows().length }
+function likedBusy(){ var r = (SETS[cur] || {}).cmtReq, d = part("cmts"); return !!(r && r.what === "search" && (!d || Date.parse(d.updatedAt) < Date.parse(r.at) - 5000)) }
+function likedHtml(){
+  var sr = ((part("search") || {}).items) || [], cm = ((part("cmts") || {}).items) || {};
+  if(!sr.length) return "<section class=\"card\"><p class=\"empty\">아직 키워드로 찾은 콘텐츠가 없어요. 키워드 탭에서 ★ 키워드로 「콘텐츠 검색」을 먼저 돌리면, 찾은 영상마다 공감 많은 댓글을 맥이 받아 와요.</p></section>";
+  var all = likedRows(), kws = [], byKw = {};
+  all.forEach(function(r){ if(!byKw[r.kw]){ byKw[r.kw] = []; kws.push(r.kw) } byKw[r.kw].push(r) });
+  var k = ui.lkKw !== "" && ui.lkKw != null && byKw[String(ui.lkKw)] ? String(ui.lkKw) : "", list = k ? byKw[k] : all, more = ui.lkMore || 30;
+  var got = sr.filter(function(v){ return cm[v.vid] && !cm[v.vid].error }).length, off = sr.filter(function(v){ return cm[v.vid] && cm[v.vid].error }).length, wait = sr.length - got - off, busy = likedBusy();
+  var h = "<section class=\"card\"><div class=\"card-h\"><h3>💬 공감 댓글</h3><span class=\"n\">댓글 " + all.length + "개 · 영상 " + got + "/" + sr.length + "</span></div>" +
+    "<p class=\"lead\">키워드로 찾은 영상들의 댓글을 <b>공감(좋아요) 많은 순</b>으로만 줄 세웠어요 — 구독자·조회수·영상 점수는 보지 않아요. 영상마다 좋아요 많은 댓글 5개(댓글 100개 중)를 받아 모았어요.</p>" +
+    "<div class=\"acts\"><button class=\"btn\" data-act=\"likedreq\"" + (busy ? " disabled" : "") + ">" + (busy ? "맥이 댓글 받는 중…" : wait ? "안 받은 영상 " + wait + "개 댓글 받기" : "댓글 다시 받기") + "</button>" +
+    (off ? "<span class=\"lead\" style=\"margin:0\">댓글 막힘 · 못 받음 " + off + "개</span>" : "") + "</div></section>";
+  if(!all.length) return h + "<section class=\"card\"><p class=\"empty\">" + (busy ? "맥이 댓글을 받는 중이에요 — 1~2분 걸려요." : "아직 받은 댓글이 없어요. 위 버튼을 누르면 맥이 받아 와요.") + "</p></section>";
+  /* 정리 — 키워드마다 공감 1위 */
+  h += "<section class=\"card\"><div class=\"card-h\"><h3>키워드마다 공감 1위</h3><span class=\"n\">" + kws.length + "개 키워드</span></div><div class=\"list\">" +
+    kws.slice().sort(function(a, b){ return byKw[b][0].likes - byKw[a][0].likes }).map(function(kw){ var r = byKw[kw][0];
+      return "<div class=\"it\"><span class=\"num\">👍 " + fmt(r.likes) + "</span><div class=\"it-m\"><div class=\"it-h\"><span class=\"tag\">" + esc(kw) + "</span> " + esc(String(r.text).replace(/\s+/g, " ").slice(0, 90)) + (String(r.text).length > 90 ? "…" : "") + "</div>" +
+        "<div class=\"it-d\"><a href=\"https://www.youtube.com/watch?v=" + esc(r.vid) + "\" target=\"_blank\" rel=\"noopener\">" + esc(r.title || r.vid) + "</a></div></div>" +
+        "<button class=\"btn sm\" data-ui=\"lkKw=" + esc(kw) + "\">이 키워드 " + byKw[kw].length + "개</button></div>" }).join("") + "</div></section>";
+  /* 전체 순위 — 키워드로 거르기 */
+  h += "<section class=\"card\"><div class=\"card-h\"><h3>공감 순위" + (k ? " · 「" + esc(k) + "」" : "") + "</h3><span class=\"n\">" + list.length + "개</span></div>" +
+    "<div class=\"chips\"><button class=\"chip" + (k ? "" : " on") + "\" data-ui=\"lkKw=\">전체 <span>" + all.length + "</span></button>" +
+    kws.map(function(kw){ return "<button class=\"chip" + (k === kw ? " on" : "") + "\" data-ui=\"lkKw=" + esc(kw) + "\">" + esc(kw) + " <span>" + byKw[kw].length + "</span></button>" }).join("") + "</div>" +
+    "<div class=\"list lk\">" + list.slice(0, more).map(function(r, i){ var long = String(r.text).length > 160;
+      return "<div class=\"it\"><span class=\"num muted\">" + (i + 1) + "</span><div class=\"it-m\"><div class=\"it-h\"><b class=\"num\">👍 " + fmt(r.likes) + "</b>" + (r.replies ? " <span class=\"muted\">💬 " + fmt(r.replies) + "</span>" : "") + " <span class=\"tag\">" + esc(r.kw) + "</span></div>" +
+        (long ? "<details><summary>" + esc(String(r.text).slice(0, 160)) + "…</summary><div class=\"pre\">" + esc(r.text) + "</div></details>" : "<div class=\"pre\">" + esc(r.text) + "</div>") +
+        "<div class=\"it-d\"><a href=\"https://www.youtube.com/watch?v=" + esc(r.vid) + "\" target=\"_blank\" rel=\"noopener\">" + esc(r.title || r.vid) + "</a> · " + esc(r.channel || "") + (r.at ? " · " + esc(r.at) : "") + "</div></div></div>" }).join("") + "</div>" +
+    (list.length > more ? "<div class=\"acts\"><button class=\"btn sm\" data-ui=\"lkMore=" + (more + 30) + "\">더 보기 (" + (list.length - more) + "개)</button></div>" : "") + "</section>";
+  return h;
+}
+
 /* ── ✍️ 내 말로 끼어들기 — 어느 탭에서든 내 지시로 워크플로우 중간에 들어가 콘텐츠를 만든다 ──
    2026-11-18 동욱: "키워드·콘텐츠에 없더라도 중간에 내 프롬프트로 어느 부분에서든 그 기반으로 워크플로우에 끼어들어 콘텐츠를 제작할 수 있게, 거의 모든 탭별로".
    탭마다 맨 위에 칸 하나(promptBarHtml) + 구축 문서 · 대본마다 칸(promptBoxHtml).
@@ -2887,7 +2936,8 @@ function act(name, el){
     send("script", "대본 초안 — " + bj.id + " " + bj.title, { ideas: [{ id: bj.id, title: bj.title, quote: bj.basis, refs: bj.refs, role: bj.role, stage: bj.stage, product: bj.product }] }); return }
   if(name === "buildscript"){ var bd = buildDocs().filter(function(x){ return x.id === el.dataset.id })[0]; if(!bd) return;   // 구축 문서 → 대본 (최종)
     send("script", "대본 초안 — 구축 문서 " + bd.id + " " + bd.title, { ids: [bd.id], build: bd.id }); return }
-  if(name === "cmtreq"){ setS({ cmtReq: { at: new Date().toISOString() } }); return }   // 추천 근거 영상 댓글 — 좋아요 순 5개
+  if(name === "cmtreq"){ setS({ cmtReq: { at: new Date().toISOString() } }); return }
+  if(name === "likedreq"){ setS({ cmtReq: { at: new Date().toISOString(), what: "search" } }); return }   // 💬 공감 댓글 — 키워드로 찾은 영상들 댓글 받기   // 추천 근거 영상 댓글 — 좋아요 순 5개
   if(name === "autostart"){ autoStart(); return }   // 🚀 자동 진행 — 키워드 → 추천 → 구축 → 대본 → 보고
   if(name === "autoopt"){ var ao5 = autoOpt(); ao5[el.dataset.k] = el.dataset.k === "n" ? autoN(el.dataset.v) : el.dataset.v; setS({ autoOpt: ao5 }); return }
   if(name === "script"){ var ids = pickedIds(s).filter(function(id){ return !scriptOf(id) }); if(!ids.length) return;
