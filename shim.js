@@ -7,8 +7,11 @@
   var SB_KEY = "sb_publishable_uuyp3LdaEeKr002cSVrfhw_hWy1Q8i3"; // 공개용 키
   // 같은 주소 아래 앱 셋(Brainy 홈 · 맥 단축키 · 체화 단어장)이 이 받침을 같이 쓴다. 앱마다 자기 컬렉션만 읽는다.
   var APP = window.BRAINY_APP || { key: "home", name: "Brainy 홈", icon: "icon.svg" };
-  var OTHER = ["ai", "ai_out", "sc.data", "sc.marks", "additions", "requests", "vo.data", "vo.ids", "progress", "ctx", "mac", "ct.data", "ct.set", "cr.data", "cr.memo", "cr.study", "cr.tog", "ad.data", "bchat"]; // 홈이 안 읽는 것 (mac = 맥 동기화 신호, 새로고침 버튼이 따로 본다)
+  var OTHER = ["ai", "ai_out", "sc.data", "sc.marks", "additions", "requests", "vo.data", "vo.ids", "progress", "ctx", "mac", "ct.data", "ct.set", "cr.data", "cr.memo", "cr.study", "cr.tog", "ad.data", "bchat", "vo.cap"]; // 홈이 안 읽는 것 (vo.cap = 단어장 암기 사진 원본 — 크다) (mac = 맥 동기화 신호, 새로고침 버튼이 따로 본다)
   function mine(coll) { return APP.colls ? APP.colls.indexOf(coll) >= 0 : OTHER.indexOf(coll) < 0; }
+  // 여러 앱이 같이 쓰는 컬렉션(cmd 등)에서 이 앱 것만 받는다 — APP.only = { cmd: { from: "vocab" } } (2026-11-28 단어장이 다른 앱 cmd 113줄까지 받던 일)
+  var ONLY = APP.only || {};
+  function keep(coll, data) { var f = ONLY[coll]; return !f || (!!data && Object.keys(f).every(function (k) { return data[k] === f[k]; })); }
   function inList(a) { return "(" + a.map(function (x) { return '"' + x + '"'; }).join(",") + ")"; }
   var CACHE_KEY = "brainy-docs-v1" + (APP.key === "home" ? "" : ":" + APP.key);
   var OLD_APP = "https://claude.ai/artifact/KNwrPxJ79E83vgSTL3447n";
@@ -93,12 +96,26 @@
       onSnapshot: function (cb) { return listen({ kind: "coll", coll: coll, cb: cb, order: order, dir: dir, lim: lim }); }
     };
   }
-  var db = { doc: ref, collection: function (c) { return query(c); } };
+  // send: 이 화면에 남기지 않고 보내기만 한다 — 사진처럼 큰 문서(암기 사진 vo.cap · 2026-11-28)가 이 기기 저장 공간을 채우지 않게
+  function send(path, data) {
+    return sb.from("docs").upsert({ path: path, coll: collOf(path), id: idOf(path), data: data }).then(function (r) {
+      if (r.error) throw err(/row-level security|permission|JWT/i.test(r.error.message) ? "permission_denied" : "unavailable", r.error.message);
+    }, function (e) { throw err("unavailable", e && e.message); });
+  }
+  var db = { doc: ref, collection: function (c) { return query(c); }, send: send };
 
   // 통째로 받기는 처음과 10분에 한 번(지워진 문서까지 맞추려고). 그 사이 다시 볼 때는 바뀐 것만 받는다.
   var lastAt = "", lastFull = 0, FULL_EVERY = 10 * 60 * 1000;
   function bump(at) { if (at && at > lastAt) lastAt = at; }
-  function scoped(q) { return APP.colls ? q.filter("coll", "in", inList(APP.colls)) : q.not("coll", "in", inList(OTHER)); }
+  function scoped(q) {
+    if (!APP.colls) return q.not("coll", "in", inList(OTHER));
+    var only = APP.colls.filter(function (c) { return ONLY[c]; });
+    if (!only.length) return q.filter("coll", "in", inList(APP.colls));
+    var parts = ["coll.in." + inList(APP.colls.filter(function (c) { return !ONLY[c]; }))].concat(only.map(function (c) {
+      return "and(coll.eq." + JSON.stringify(c) + "," + Object.keys(ONLY[c]).map(function (k) { return "data->>" + k + ".eq." + JSON.stringify(String(ONLY[c][k])); }).join(",") + ")";
+    }));
+    return q.or(parts.join(","));
+  }
   // 서버는 한 번에 1000줄까지만 준다 — 넘으면 뒤쪽 문서가 말없이 빠진다 (2026-11-28 단어장 1108줄 → 궁전이 안 뜸). path 순서로 1000줄씩 끝까지 받는다
   var PAGE = 1000;
   function pageAll(make, from, acc) {
@@ -137,10 +154,11 @@
       if (path === MAC_PATH || path.indexOf("cmd/") === 0) bsEvent(path, p);
       if (path.indexOf("ai_out/") === 0) { if (p.new && p.new.data) aiOut(path.slice(7), p.new.data); else aiPoll(path.slice(7)); return; }
       if (!mine(collOf(path))) return;            // 다른 앱 것·내가 보낸 질문 — 이 화면 데이터가 아니다
+      if (p.new && p.new.data && !keep(collOf(path), p.new.data)) return;   // 같이 쓰는 컬렉션의 다른 앱 문서
       if (pending[path] > 0) return;             // 내가 방금 쓴 것의 메아리 — 화면 값이 더 새롭다
       if (p.eventType === "DELETE") { if (docs[path] === undefined) return; delete docs[path]; }
       else if (p.new.data === undefined || (p.errors && p.errors.length)) {   // 문서가 커서 실시간 알림에 본문이 빠짐 — 따로 읽는다
-        sb.from("docs").select("data").eq("path", path).maybeSingle().then(function (r) { if (r.data && !(pending[path] > 0)) { docs[path] = r.data.data; saveCache(); notify(path); } });
+        sb.from("docs").select("data").eq("path", path).maybeSingle().then(function (r) { if (r.data && !(pending[path] > 0) && keep(collOf(path), r.data.data)) { docs[path] = r.data.data; saveCache(); notify(path); } });
         return;
       }
       else { bump(p.new.updated_at); if (JSON.stringify(docs[path]) === JSON.stringify(p.new.data)) return; docs[path] = p.new.data; }
