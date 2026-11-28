@@ -51,8 +51,8 @@ header>.brand{padding-right:min(46vw,190px)}
 <body>
 <span id="rtdot" aria-hidden="true"></span>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script>window.BRAINY_VERSION = "db67cc2c31"; window.BRAINY_APP = {key: "content", name: "콘텐츠 기획", icon: "ct-icon-192.png", sub: "키워드와 트렌드로 주제를 고르고 대본 초안까지", colls: ["ct.data", "ct.set", "cmd", "bchat"]};</script>
-<script src="shim.js?v=db67cc2c31"></script>
+<script>window.BRAINY_VERSION = "e503dca051"; window.BRAINY_APP = {key: "content", name: "콘텐츠 기획", icon: "ct-icon-192.png", sub: "키워드와 트렌드로 주제를 고르고 대본 초안까지", colls: ["ct.data", "ct.set", "cmd", "bchat"]};</script>
+<script src="shim.js?v=e503dca051"></script>
 <script>document.addEventListener("click", function (e) { var b = e.target.closest && e.target.closest("[data-brainy=out]"); if (b && confirm("로그아웃할까요?")) window.BRAINY.signOut(); });</script>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="apple-mobile-web-app-title" content="콘텐츠 기획">
@@ -2503,7 +2503,7 @@ function scriptFmt(text){
     if((m = line.match(/^(\s*)[-*]\s+(.*)$/))){
       var depth = m[1].length >= 2 ? 2 : 1;
       while(list < depth){ out.push("<ul class=\"sf-ul\">"); list++ } while(list > depth){ out.push("</ul>"); list-- }
-      var kv = m[2].match(/^([^:：「」]{1,12})[:：]\s*(.*)$/);
+      var kv = depth === 1 && m[2].match(/^([^:：「」]{1,12})[:：]\s*(.*)$/);   // 「이름: 내용」은 맨 앞 줄만 — 하위 줄(말할 요점 속 「그래서 오늘 결심: …」)은 그대로
       if(kv){ var key = /꼭|핵심|한 줄/.test(kv[1]);
         out.push("<li class=\"sf-kv" + (key ? " sf-key" : "") + "\"><b class=\"sf-k\">" + esc(kv[1]) + "</b> " + (kv[2] ? (key ? "<u class=\"sf-u\">" + sfInline(kv[2]) + "</u>" : sfInline(kv[2])) : "") + "</li>") }
       else out.push("<li>" + sfInline(m[2]) + "</li>");
